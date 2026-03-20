@@ -205,21 +205,21 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .confirm-no:active{background:var(--bg)}
 
 /* ── MOBILE TOP NAV ── */
-.mob-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);box-shadow:0 2px 12px rgba(0,0,0,.25);padding:4px 6px}
-.mob-nav-row{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
-.mob-nav-btn{border:none;background:transparent;cursor:pointer;border-radius:8px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.12s;width:100%}
-.mob-nav-btn:active{transform:scale(.93)}
-.mob-nav-btn .mn-ic{font-size:17px;line-height:1}
-.mob-nav-btn .mn-lb{font-size:9px;font-weight:700;color:rgba(255,255,255,.5);line-height:1;white-space:nowrap}
-.mob-nav-btn[data-c=blue].active{background:rgba(59,130,246,.3)} .mob-nav-btn[data-c=blue].active .mn-lb{color:#bfdbfe}
-.mob-nav-btn[data-c=green].active{background:rgba(16,185,129,.26)} .mob-nav-btn[data-c=green].active .mn-lb{color:#a7f3d0}
-.mob-nav-btn[data-c=red].active{background:rgba(248,113,113,.22)} .mob-nav-btn[data-c=red].active .mn-lb{color:#fecaca}
-.mob-nav-btn[data-c=cyan].active{background:rgba(34,211,238,.22)} .mob-nav-btn[data-c=cyan].active .mn-lb{color:#a5f3fc}
-.mob-nav-btn[data-c=amber].active{background:rgba(251,191,36,.22)} .mob-nav-btn[data-c=amber].active .mn-lb{color:#fef08a}
-.mob-nav-btn[data-c=orange].active{background:rgba(251,146,60,.22)} .mob-nav-btn[data-c=orange].active .mn-lb{color:#fed7aa}
-.mob-nav-btn[data-c=purple].active{background:rgba(167,139,250,.26)} .mob-nav-btn[data-c=purple].active .mn-lb{color:#ddd6fe}
-.mob-nav-btn[data-c=slate].active{background:rgba(148,163,184,.18)} .mob-nav-btn[data-c=slate].active .mn-lb{color:#f1f5f9}
-.mob-nav-divider{height:1px;background:rgba(255,255,255,.08);margin:3px 0}
+.mob-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:100;background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08)}
+.mob-nav-row{display:flex;border-bottom:1px solid rgba(255,255,255,.07)}
+.mob-nav-row:last-child{border-bottom:none}
+.mob-nav-btn{flex:1;border:none;background:transparent;cursor:pointer;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;transition:.15s;border-bottom:2px solid transparent;position:relative}
+.mob-nav-btn:active{background:rgba(255,255,255,.06)}
+.mob-nav-btn .mn-ic{font-size:16px;line-height:1}
+.mob-nav-btn .mn-lb{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.4);line-height:1;white-space:nowrap;transition:.15s}
+.mob-nav-btn[data-c=blue].active{border-bottom-color:#3b82f6} .mob-nav-btn[data-c=blue].active .mn-lb{color:#93c5fd}
+.mob-nav-btn[data-c=green].active{border-bottom-color:#10b981} .mob-nav-btn[data-c=green].active .mn-lb{color:#6ee7b7}
+.mob-nav-btn[data-c=red].active{border-bottom-color:#ef4444} .mob-nav-btn[data-c=red].active .mn-lb{color:#fca5a5}
+.mob-nav-btn[data-c=cyan].active{border-bottom-color:#06b6d4} .mob-nav-btn[data-c=cyan].active .mn-lb{color:#67e8f9}
+.mob-nav-btn[data-c=amber].active{border-bottom-color:#f59e0b} .mob-nav-btn[data-c=amber].active .mn-lb{color:#fcd34d}
+.mob-nav-btn[data-c=orange].active{border-bottom-color:#f97316} .mob-nav-btn[data-c=orange].active .mn-lb{color:#fdba74}
+.mob-nav-btn[data-c=purple].active{border-bottom-color:#7c3aed} .mob-nav-btn[data-c=purple].active .mn-lb{color:#c4b5fd}
+.mob-nav-btn[data-c=slate].active{border-bottom-color:#94a3b8} .mob-nav-btn[data-c=slate].active .mn-lb{color:#e2e8f0}
 
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:600px){
@@ -230,7 +230,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   .mob-nav{display:block}
 
   /* Content full width + beri ruang untuk top nav (~82px) */
-  .content-wrap{margin-left:0;padding-top:82px}
+  .content-wrap{margin-left:0;padding-top:100px}
 
   /* Header & layout */
   .header{padding:10px 12px 8px}
@@ -288,7 +288,6 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <!-- ===== MOBILE TOP NAV ===== -->
 <nav class="mob-nav" id="mob-nav">
-  <!-- Baris 1: Beranda, Penjualan, Hutang, Riwayat, Neraca -->
   <div class="mob-nav-row">
     <button class="mob-nav-btn" data-c="blue" data-page="beranda" onclick="showPage('beranda')">
       <span class="mn-ic">🏠</span><span class="mn-lb">Beranda</span>
@@ -306,8 +305,6 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       <span class="mn-ic">🏦</span><span class="mn-lb">Neraca</span>
     </button>
   </div>
-  <div class="mob-nav-divider"></div>
-  <!-- Baris 2: Pelanggan, Produk, FAQ, Setelan, Logout -->
   <div class="mob-nav-row">
     <button class="mob-nav-btn" data-c="orange" data-page="pelanggan" onclick="showPage('pelanggan')">
       <span class="mn-ic">👥</span><span class="mn-lb">Pelanggan</span>
