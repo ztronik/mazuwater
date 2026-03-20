@@ -204,63 +204,73 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .confirm-no{border:2px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--card);color:var(--muted);transition:.15s}
 .confirm-no:active{background:var(--bg)}
 
+/* ── HAMBURGER BUTTON ── */
+.nav-toggle{display:none;align-items:center;justify-content:center;width:36px;height:36px;border:none;background:rgba(255,255,255,.1);border-radius:8px;cursor:pointer;flex-shrink:0;transition:.15s}
+.nav-toggle:active{background:rgba(255,255,255,.2)}
+.nav-toggle svg{width:18px;height:18px;stroke:#fff;stroke-width:2;fill:none}
+
+/* ── NAV OVERLAY (mobile backdrop) ── */
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;opacity:0;transition:.25s;pointer-events:none}
+.nav-overlay.open{opacity:1;pointer-events:all}
+
 /* ── MOBILE RESPONSIVE ── */
-@media(max-width:480px){
-  /* Sidebar lebih kecil */
-  .nav{width:70px}
-  .nav-logo{padding:10px 4px 8px}
-  .nav-logo-text{font-size:9px;letter-spacing:.8px}
-  .nav-logo-sub{font-size:7px}
-  .nav-links{padding:0 4px;gap:1px}
-  .nav-btn{padding:8px 4px}
-  .nav-btn span{font-size:10px}
-  .content-wrap{margin-left:70px}
+@media(max-width:600px){
+  /* Sidebar: hidden by default, slides in */
+  .nav{transform:translateX(-110px);transition:transform .25s cubic-bezier(.32,1,.5,1)}
+  .nav.open{transform:translateX(0)}
+  .nav-overlay{display:block}
+
+  /* Content takes full width */
+  .content-wrap{margin-left:0}
+
+  /* Show hamburger button */
+  .nav-toggle{display:inline-flex}
 
   /* Header & layout */
-  .header{padding:10px 10px 8px}
-  .header h2{font-size:15px}
-  .main{padding:0 10px 24px}
+  .header{padding:10px 12px 8px}
+  .header h2{font-size:16px}
+  .main{padding:0 12px 24px}
 
   /* Hero — diperkecil */
-  .hero{padding:12px}
-  .hero-val{font-size:20px}
+  .hero{padding:13px}
+  .hero-val{font-size:21px}
   .hero-label{font-size:11px}
   .hero-sub{font-size:10px}
 
   /* Stat cards */
-  .stat-card{padding:9px}
-  .stat-num{font-size:15px}
+  .stat-card{padding:10px}
+  .stat-num{font-size:16px}
   .stat-label{font-size:10px}
-  .grid2{gap:7px}
+  .grid2{gap:8px}
 
   /* Kartu & list */
-  .card{padding:10px;border-radius:10px}
-  .list-item{padding:9px 10px;gap:8px}
-  .li-icon{width:32px;height:32px;font-size:11px}
+  .card{padding:11px}
+  .list-item{padding:9px 10px;gap:9px}
+  .li-icon{width:33px;height:33px;font-size:11px}
   .li-icon svg{width:15px;height:15px}
   .li-name{font-size:12px}
   .li-desc{font-size:10px}
   .li-amt{font-size:12px}
 
   /* Grand total preview di Penjualan */
-  #grand-total{font-size:18px !important}
+  #grand-total{font-size:19px !important}
 
   /* Produk card */
   .prod-card{padding:10px}
 
   /* Form */
-  .fc{font-size:13px;padding:9px 10px}
-  .btn{padding:10px 12px;font-size:13px}
+  .fc{font-size:13px;padding:9px 11px}
+  .btn{padding:10px 13px;font-size:13px}
 
   /* QA grid */
-  .qa-grid{grid-template-columns:repeat(4,1fr);gap:5px}
-  .qa-btn{padding:8px 2px}
-  .qa-icon{width:28px;height:28px}
+  .qa-grid{gap:5px}
+  .qa-btn{padding:8px 3px}
+  .qa-icon{width:30px;height:30px}
   .qa-icon svg{width:14px;height:14px}
-  .qa-lbl{font-size:8.5px}
+  .qa-lbl{font-size:9px}
 
   /* Badge & tabs */
-  .tab{padding:5px 10px;font-size:11px}
+  .tab{padding:5px 11px;font-size:11px}
   .badge{font-size:9px;padding:2px 7px}
 
   /* Sec title */
@@ -270,8 +280,11 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 </head>
 <body>
 
+<!-- NAV OVERLAY (mobile) -->
+<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+
 <!-- ===== SIDEBAR ===== -->
-<nav class="nav">
+<nav class="nav" id="main-nav">
   <div class="nav-logo">
     <div class="nav-logo-text">MAZU WATER</div>
     <div class="nav-logo-sub">DEPOT AIR</div>
@@ -374,6 +387,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <div id="page-beranda" class="page active">
   <div class="header" style="padding-bottom:12px">
     <div class="header-row">
+      <button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
       <div>
         <div style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:4px">Selamat datang 👋</div>
         <h2 id="depot-name-header" style="line-height:1.2">MAZU WATER</h2>
@@ -417,7 +431,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== JUAL ===== -->
 <div id="page-jual" class="page">
   <div class="header">
-    <div class="header-row"><h2>Penjualan</h2></div>
+    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Penjualan</h2></div>
     <div class="header-sub">Galon & tandon dalam satu transaksi</div>
   </div>
   <div class="main">
@@ -561,7 +575,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== HUTANG ===== -->
 <div id="page-hutang" class="page">
   <div class="header">
-    <div class="header-row"><h2>Hutang & Piutang</h2></div>
+    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Hutang & Piutang</h2></div>
     <div class="header-sub">Kelola tagihan pelanggan</div>
   </div>
   <div class="main">
@@ -609,7 +623,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== RIWAYAT ===== -->
 <div id="page-riwayat" class="page">
   <div class="header">
-    <div class="header-row"><h2>Riwayat & Laporan</h2>
+    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Riwayat & Laporan</h2>
       <button class="btn btn-secondary btn-sm" onclick="exportToCSV()">📥 CSV</button>
     </div>
     <div class="header-sub">Transaksi & ringkasan keuangan</div>
@@ -648,7 +662,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== PELANGGAN ===== -->
 <div id="page-pelanggan" class="page">
   <div class="header">
-    <div class="header-row"><h2>Pelanggan</h2>
+    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Pelanggan</h2>
       <button class="btn btn-primary btn-sm" onclick="resetAndOpenPelanggan()">+ Tambah</button>
     </div>
     <div class="header-sub">Daftar & hutang pelanggan</div>
@@ -666,7 +680,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== PRODUK ===== -->
 <div id="page-produk" class="page">
   <div class="header">
-    <div class="header-row"><h2>Produk & Stok</h2></div>
+    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Produk & Stok</h2></div>
     <div class="header-sub">Galon kemasan & air tandon</div>
   </div>
   <div class="main">
@@ -810,7 +824,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== NERACA MODAL ===== -->
 <div id="page-neraca" class="page">
   <div class="header">
-    <div class="header-row"><h2>Neraca Modal</h2></div>
+    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Neraca Modal</h2></div>
     <div class="header-sub">Total modal produk galon & tandon</div>
   </div>
   <div class="main">
@@ -892,7 +906,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <!-- ===== FAQ ===== -->
 <div id="page-faq" class="page">
-  <div class="header"><div class="header-row"><h2>❓ FAQ</h2></div><div class="header-sub">Pertanyaan yang sering ditanyakan</div></div>
+  <div class="header"><div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>❓ FAQ</h2></div><div class="header-sub">Pertanyaan yang sering ditanyakan</div></div>
   <div class="main">
 
     <div class="card" style="margin-bottom:10px">
@@ -961,7 +975,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <!-- ===== PENGATURAN ===== -->
 <div id="page-pengaturan" class="page">
-  <div class="header"><div class="header-row"><h2>⚙️ Setelan</h2></div><div class="header-sub">Profil depot & keamanan akun</div></div>
+  <div class="header"><div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>⚙️ Setelan</h2></div><div class="header-sub">Profil depot & keamanan akun</div></div>
   <div class="main">
     <div class="card">
       <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">PROFIL DEPOT</div>
@@ -2616,6 +2630,32 @@ function doLogout(){
   } else {
     document.getElementById('login-user').focus();
   }
+})();
+
+// ═══════════════════════════════════════
+// MOBILE NAV TOGGLE
+// ═══════════════════════════════════════
+function toggleNav(){
+  const nav=document.getElementById('main-nav');
+  const overlay=document.getElementById('nav-overlay');
+  const isOpen=nav.classList.contains('open');
+  if(isOpen){ closeNav(); } else {
+    nav.classList.add('open');
+    overlay.classList.add('open');
+  }
+}
+function closeNav(){
+  document.getElementById('main-nav').classList.remove('open');
+  document.getElementById('nav-overlay').classList.remove('open');
+}
+// Close nav when a menu item is clicked on mobile
+(function(){
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    const orig=btn.getAttribute('onclick')||'';
+    btn.addEventListener('click',function(){
+      if(window.innerWidth<=600) closeNav();
+    });
+  });
 })();
 </script>
 </body>
