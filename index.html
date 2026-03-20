@@ -1,0 +1,2559 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MAZU WATER</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --blue:#1a6bff;--blue-light:#e8f0fe;--blue-dark:#0d47d9;
+  --teal:#0abf8e;--teal-light:#e0faf3;
+  --amber:#f59e0b;--amber-light:#fef3c7;
+  --red:#ef4444;--red-light:#fee2e2;
+  --green:#10b981;--green-light:#d1fae5;
+  --purple:#7c3aed;--purple-light:#ede9fe;
+  --cyan:#06b6d4;--cyan-light:#cffafe;
+  --orange:#f97316;--orange-light:#ffedd5;
+  --bg:#f0f4ff;--card:#fff;--border:#e2e8f0;
+  --text:#1e293b;--muted:#64748b;--hint:#94a3b8;
+  --nav:#fff;--safe:env(safe-area-inset-bottom,0px);
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);
+  --r:14px;--rs:10px;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior:none;font-size:15px;display:flex}
+
+/* ── SIDEBAR ── */
+.nav{position:fixed;left:0;top:0;bottom:0;width:110px;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);display:flex;flex-direction:column;align-items:stretch;padding:0 0 calc(8px + var(--safe));z-index:100;box-shadow:3px 0 20px rgba(0,0,0,.18)}
+.nav-logo{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px 12px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:4px;flex-shrink:0}
+.nav-logo-text{font-size:13px;font-weight:800;color:#fff;letter-spacing:1.5px;line-height:1.2;text-align:center}
+.nav-logo-sub{font-size:9px;color:rgba(255,255,255,.45);font-weight:600;letter-spacing:.8px;margin-top:3px}
+.nav-links{display:flex;flex-direction:column;gap:2px;flex:1;padding:0 7px;overflow-y:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-btn{width:100%;border:none;cursor:pointer;border-radius:9px;transition:.12s;padding:11px 8px;text-align:left;background:transparent;font-family:inherit;white-space:nowrap}
+.nav-btn:active{transform:scale(.96)}
+.nav-btn span{display:block;font-size:13px;font-weight:700;line-height:1;white-space:nowrap;color:rgba(255,255,255,.55);transition:.12s}
+.nav-btn:hover:not(.active) span{color:rgba(255,255,255,.85)}
+.nav-btn[data-c="blue"].active{background:rgba(59,130,246,.3)} .nav-btn[data-c="blue"].active span{color:#bfdbfe}
+.nav-btn[data-c="green"].active{background:rgba(16,185,129,.26)} .nav-btn[data-c="green"].active span{color:#a7f3d0}
+.nav-btn[data-c="purple"].active{background:rgba(167,139,250,.26)} .nav-btn[data-c="purple"].active span{color:#ddd6fe}
+.nav-btn[data-c="red"].active{background:rgba(248,113,113,.22)} .nav-btn[data-c="red"].active span{color:#fecaca}
+.nav-btn[data-c="amber"].active{background:rgba(251,191,36,.22)} .nav-btn[data-c="amber"].active span{color:#fef08a}
+.nav-btn[data-c="cyan"].active{background:rgba(34,211,238,.22)} .nav-btn[data-c="cyan"].active span{color:#a5f3fc}
+.nav-btn[data-c="orange"].active{background:rgba(251,146,60,.22)} .nav-btn[data-c="orange"].active span{color:#fed7aa}
+.nav-btn[data-c="slate"].active{background:rgba(148,163,184,.18)} .nav-btn[data-c="slate"].active span{color:#f1f5f9}
+.nav-divider{height:1px;background:rgba(255,255,255,.08);margin:4px 6px;flex-shrink:0}
+
+
+/* ── LAYOUT ── */
+.content-wrap{margin-left:110px;flex:1;min-width:0}
+.header{position:sticky;top:0;z-index:50;background:var(--bg);padding:14px 14px 10px}
+.header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.header h2{font-size:19px;font-weight:700}
+.header-sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+.main{padding:0 14px 28px}
+.page{display:none}.page.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.stat-card{background:var(--card);border-radius:var(--r);padding:12px;box-shadow:var(--shadow)}
+.stat-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:2px}
+.stat-num{font-size:19px;font-weight:700}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#1a6bff,#2563eb 60%,#7c3aed);border-radius:var(--r);padding:18px;color:#fff;margin-bottom:10px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;right:-20px;top:-20px;width:110px;height:110px;background:rgba(255,255,255,.08);border-radius:50%}
+.hero-label{font-size:12px;opacity:.85;margin-bottom:4px}
+.hero-val{font-size:28px;font-weight:700;margin-bottom:3px}
+.hero-sub{font-size:11px;opacity:.75}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:var(--rs);padding:11px 16px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.15s;width:100%;margin-bottom:8px}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:active{background:var(--blue-dark)}
+.btn-secondary{background:var(--blue-light);color:var(--blue)}
+.btn-teal{background:var(--teal-light);color:var(--teal)}
+.btn-orange{background:var(--orange-light);color:var(--orange)}
+.btn-danger{background:var(--red-light);color:var(--red)}
+.btn-green{background:var(--green-light);color:var(--green)}
+.btn-sm{padding:7px 12px;font-size:12px;border-radius:8px;width:auto;margin-bottom:0}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;border:none;border-radius:20px;padding:6px 13px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.tab.active{background:var(--blue);color:#fff}
+.tab:not(.active){background:var(--card);color:var(--muted);box-shadow:var(--shadow)}
+
+/* ── LIST ITEM ── */
+.list-item{background:var(--card);border-radius:var(--rs);padding:11px 13px;margin-bottom:7px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px}
+.li-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700}
+.li-icon svg{width:18px;height:18px}
+.li-body{flex:1;min-width:0}
+.li-name{font-size:13px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.li-right{text-align:right;flex-shrink:0}
+.li-amt{font-size:13px;font-weight:700}
+.li-date{font-size:10px;color:var(--hint);margin-top:1px}
+
+/* ── BADGES ── */
+.badge{display:inline-block;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:600}
+.bg{background:var(--green-light);color:var(--green)}
+.br{background:var(--red-light);color:var(--red)}
+.ba{background:var(--amber-light);color:var(--amber)}
+.bb{background:var(--blue-light);color:var(--blue)}
+.bp{background:var(--purple-light);color:var(--purple)}
+.bt{background:var(--teal-light);color:var(--teal)}
+.bo{background:var(--orange-light);color:var(--orange)}
+.bc{background:var(--cyan-light);color:var(--cyan)}
+
+/* ── FORM ── */
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.fc{width:100%;border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--text);background:var(--card);outline:none;transition:.15s}
+.fc:focus{border-color:var(--blue)}
+select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:.2s}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;padding:18px 15px;padding-bottom:calc(18px + var(--safe));max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:.25s cubic-bezier(.32,1,.5,1)}
+.modal-bg.open .modal{transform:translateY(0)}
+.mhandle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.mtitle{font-size:16px;font-weight:700;margin-bottom:14px}
+
+/* ── SECTION TITLE ── */
+.sec{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.sec a{font-size:11px;color:var(--blue);text-decoration:none;font-weight:600;cursor:pointer}
+
+/* ── QA GRID ── */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
+.qa-btn{background:var(--card);border-radius:var(--rs);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:5px;border:none;cursor:pointer;box-shadow:var(--shadow)}
+.qa-btn:active{transform:scale(.95)}
+.qa-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.qa-icon svg{width:17px;height:17px}
+.qa-lbl{font-size:9.5px;font-weight:600;color:var(--muted);text-align:center;line-height:1.3}
+
+/* ── PRODUK CARD ── */
+.prod-card{background:var(--card);border-radius:var(--r);padding:13px;box-shadow:var(--shadow);margin-bottom:8px;border-left:3px solid}
+.prod-card.galon{border-color:var(--blue)}
+.prod-card.tandon{border-color:var(--teal)}
+
+/* ── TANDON VISUAL ── */
+.tandon-bar{background:var(--border);border-radius:6px;height:10px;overflow:hidden;margin:6px 0}
+.tandon-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--teal),var(--blue));transition:.4s}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border);margin:12px 0}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}
+.empty svg{width:44px;height:44px;stroke:var(--hint);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto}
+.empty p{font-size:13px}
+.config-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border)}
+.config-row:last-child{border-bottom:none}
+.cfg-label{font-size:13px;font-weight:500}
+.cfg-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.toggle{width:42px;height:24px;border-radius:12px;background:var(--border);position:relative;cursor:pointer;transition:.2s;flex-shrink:0;border:none}
+.toggle.on{background:var(--blue)}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:21px}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:72px;margin-top:10px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar{width:100%;border-radius:3px 3px 0 0;transition:.4s}
+.bar-lbl{font-size:9px;color:var(--muted);font-weight:500}
+.type-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.type-btn{border:2px solid var(--border);border-radius:var(--rs);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);cursor:pointer;transition:.15s}
+.type-btn.selected{border-color:var(--blue);background:var(--blue-light)}
+.type-btn.selected .type-icon{background:var(--blue)}
+.type-btn.selected .type-lbl{color:var(--blue)}
+.type-icon{width:36px;height:36px;border-radius:10px;background:var(--border);display:flex;align-items:center;justify-content:center;transition:.15s}
+.type-icon svg{width:18px;height:18px}
+.type-lbl{font-size:11px;font-weight:700;color:var(--muted);text-align:center;line-height:1.3;transition:.15s}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a 0%,#1a3a5c 55%,#0f172a 100%);display:flex;align-items:center;justify-content:center;z-index:9000;padding:20px}
+.login-box{background:#fff;border-radius:22px;padding:36px 26px 28px;width:100%;max-width:350px;box-shadow:0 24px 64px rgba(0,0,0,.45)}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px}
+.login-logo-icon{font-size:42px;line-height:1;filter:drop-shadow(0 2px 6px rgba(26,107,255,.4))}
+.login-title{font-size:28px;font-weight:900;color:#0f172a;letter-spacing:.5px;line-height:1}
+.login-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:22px}
+.login-err{background:var(--red-light);color:var(--red);border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;text-align:center}
+.login-input-wrap{position:relative;margin-bottom:14px}
+.login-input-wrap .li-ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;line-height:1}
+.login-input-wrap input{width:100%;border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 14px 11px 38px;font-family:inherit;font-size:14px;color:var(--text);background:#fff;outline:none;transition:.15s;box-sizing:border-box}
+.login-input-wrap input:focus{border-color:var(--blue)}
+.login-input-wrap .pass-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;font-size:16px;padding:2px;line-height:1;color:var(--hint)}
+.login-copyright{font-size:11px;color:var(--hint);text-align:center;margin-top:20px;line-height:1.6}
+.login-help{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
+
+/* ── LOGIN LOADING ── */
+#login-loading{position:absolute;inset:0;background:rgba(255,255,255,.92);border-radius:22px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:10}
+.spin{width:38px;height:38px;border:4px solid #e2e8f0;border-top-color:#1a6bff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#login-loading-txt{font-size:14px;font-weight:600;color:#1a6bff}
+
+/* ── CUSTOM CONFIRM MODAL ── */
+#custom-confirm{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+.confirm-box{background:#fff;border-radius:18px;padding:28px 24px;width:100%;max-width:300px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.3)}
+.confirm-icon{font-size:40px;margin-bottom:10px;line-height:1}
+.confirm-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:6px}
+.confirm-sub{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.5}
+.confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.confirm-yes{border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;transition:.15s}
+.confirm-yes:active{opacity:.85}
+.confirm-no{border:2px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--card);color:var(--muted);transition:.15s}
+.confirm-no:active{background:var(--bg)}
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-text">MAZU WATER</div>
+    <div class="nav-logo-sub">DEPOT AIR</div>
+  </div>
+  <div class="nav-links">
+
+    <button class="nav-btn" data-c="blue" onclick="showPage('beranda')">
+      <span>🏠 Beranda</span>
+    </button>
+
+    <button class="nav-btn" data-c="green" onclick="showPage('jual')">
+      <span>🛒 Penjualan</span>
+    </button>
+
+    <button class="nav-btn" data-c="red" onclick="showPage('hutang')">
+      <span>💳 Hutang</span>
+    </button>
+
+    <button class="nav-btn" data-c="cyan" onclick="showPage('riwayat')">
+      <span>📊 Riwayat</span>
+    </button>
+
+    <button class="nav-btn" data-c="green" onclick="showPage('neraca')">
+      <span>🏦 Neraca</span>
+    </button>
+
+    <button class="nav-btn" data-c="orange" onclick="showPage('pelanggan')">
+      <span>👥 Pelanggan</span>
+    </button>
+
+    <button class="nav-btn" data-c="amber" onclick="showPage('produk')">
+      <span>📦 Produk</span>
+    </button>
+
+    <button class="nav-btn" data-c="purple" onclick="showPage('faq')">
+      <span>❓ FAQ</span>
+    </button>
+
+    <button class="nav-btn" data-c="slate" onclick="showPage('pengaturan')">
+      <span>⚙️ Setelan</span>
+    </button>
+
+    <button class="nav-btn" data-c="red" onclick="doLogout()" style="margin-top:auto">
+      <span>🚪 Logout</span>
+    </button>
+
+  </div>
+</nav>
+
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen">
+  <div class="login-box" style="position:relative">
+    <div id="login-loading">
+      <div class="spin"></div>
+      <div id="login-loading-txt">Memverifikasi...</div>
+    </div>
+    <div class="login-logo">
+      <span class="login-logo-icon">💧</span>
+      <div class="login-title">MAZU WATER</div>
+    </div>
+    <div class="login-sub">Depot Air Minum — Sistem Manajemen</div>
+    <div class="login-err" id="login-err">❌ Username atau password salah</div>
+
+    <label class="fl">Username</label>
+    <div class="login-input-wrap">
+      <span class="li-ic">👤</span>
+      <input type="text" id="login-user" placeholder="Masukkan username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <label class="fl">Password</label>
+    <div class="login-input-wrap">
+      <span class="li-ic">🔒</span>
+      <input type="password" id="login-pass" placeholder="Masukkan password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:42px">
+      <button class="pass-toggle" onclick="togglePassVisibility()" id="btn-pass-toggle" title="Tampilkan/sembunyikan password">👁️</button>
+    </div>
+
+    <button class="btn btn-primary" onclick="doLogin()" style="margin-bottom:0;margin-top:4px">🔐 Masuk</button>
+
+    <div class="login-help">
+      Lupa username atau password?<br>
+      <a href="https://wa.me/6281281225335?text=Halo%2C+saya+lupa+username%2Fpassword+aplikasi+MAZU+WATER" target="_blank"
+        style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;text-decoration:none;color:#128C7E">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#25D366;border-radius:50%;flex-shrink:0;box-shadow:0 2px 8px rgba(37,211,102,.4)">
+          <svg viewBox="0 0 32 32" width="21" height="21" fill="#fff"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.47.67 4.79 1.84 6.78L2 30l7.44-1.8A13.93 13.93 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2zm0 25.5a11.43 11.43 0 01-5.83-1.6l-.42-.25-4.35 1.05 1.1-4.22-.27-.44A11.47 11.47 0 014.5 16C4.5 9.6 9.6 4.5 16 4.5S27.5 9.6 27.5 16 22.4 27.5 16 27.5zm6.28-8.57c-.34-.17-2.02-.99-2.33-1.1-.31-.11-.54-.17-.77.17s-.88 1.1-1.08 1.33c-.2.22-.4.25-.74.08-.34-.17-1.44-.53-2.74-1.69-1.01-.9-1.69-2.01-1.89-2.35-.2-.34-.02-.52.15-.69.15-.15.34-.4.51-.6.17-.2.22-.34.34-.57.11-.22.06-.42-.03-.6-.08-.17-.77-1.85-1.05-2.53-.28-.67-.56-.58-.77-.59l-.65-.01c-.22 0-.58.08-.88.42-.31.34-1.17 1.14-1.17 2.78s1.2 3.22 1.36 3.44c.17.22 2.36 3.6 5.72 5.05.8.34 1.42.55 1.91.7.8.25 1.53.22 2.1.13.64-.1 1.97-.81 2.25-1.58.28-.77.28-1.43.2-1.57-.09-.14-.31-.22-.65-.39z"/></svg>
+        </span>
+        <span style="font-size:16px;font-weight:700;color:#25D366;letter-spacing:.3px">0812-8122-5335</span>
+      </a>
+    </div>
+
+    <div class="login-copyright">
+      © 2026 Z-TRONIK. All Rights Reserved.
+    </div>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ===== BERANDA ===== -->
+<div id="page-beranda" class="page active">
+  <div class="header" style="padding-bottom:12px">
+    <div class="header-row">
+      <div>
+        <div style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:4px">Selamat datang 👋</div>
+        <h2 id="depot-name-header" style="line-height:1.2">MAZU WATER</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="loadFromSheets()" title="Refresh dari Sheets" style="border:none;background:var(--green-light);color:var(--green);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer">⟳ Sync</button>
+        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1a6bff,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;box-shadow:0 3px 10px rgba(26,107,255,.4)" id="avatar-initials">ZT</div>
+      </div>
+    </div>
+    <div id="sync-status" style="display:none;font-size:11px;color:var(--muted);margin-top:6px;padding:6px 10px;background:var(--card);border-radius:8px;text-align:center"></div>
+  </div>
+  <div class="main" style="padding-top:16px">
+    <div class="hero">
+      <div class="hero-label">Omzet Hari Ini</div>
+      <div class="hero-val" id="omzet-hari">Rp 0</div>
+      <div class="hero-sub" id="trx-count-today">0 transaksi hari ini</div>
+    </div>
+    <!-- STATS -->
+    <div class="grid2">
+      <div class="stat-card"><div class="stat-label">Stok Galon</div><div class="stat-num" id="stok-galon">-</div></div>
+      <div class="stat-card"><div class="stat-label">Isi Tandon</div><div class="stat-num" id="sisa-tandon">-</div></div>
+      <div class="stat-card"><div class="stat-label">Total Piutang</div><div class="stat-num" id="total-hutang-stat" style="color:var(--red);font-size:15px">Rp 0</div></div>
+      <div class="stat-card"><div class="stat-label">Omzet Bulan Ini</div><div class="stat-num" id="omzet-bulan" style="color:var(--green);font-size:15px">Rp 0</div></div>
+    </div>
+    <!-- GRAFIK PENJUALAN -->
+    <div class="card" style="padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:700">Grafik Penjualan</div>
+        <div style="display:flex;gap:10px;font-size:10px;font-weight:600">
+          <span style="display:flex;align-items:center;gap:4px;color:var(--blue)"><span style="width:8px;height:8px;border-radius:2px;background:var(--blue);display:inline-block"></span>Galon</span>
+          <span style="display:flex;align-items:center;gap:4px;color:var(--teal)"><span style="width:8px;height:8px;border-radius:2px;background:var(--teal);display:inline-block"></span>Tandon</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">7 hari terakhir</div>
+      <div id="beranda-chart" style="display:flex;align-items:flex-end;gap:5px;height:80px"></div>
+      <div id="beranda-chart-labels" style="display:flex;gap:5px;margin-top:5px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JUAL ===== -->
+<div id="page-jual" class="page">
+  <div class="header">
+    <div class="header-row"><h2>Penjualan</h2></div>
+    <div class="header-sub">Galon & tandon dalam satu transaksi</div>
+  </div>
+  <div class="main">
+
+    <!-- PELANGGAN -->
+    <div class="card" style="padding:13px;margin-bottom:10px">
+      <div class="fg" style="margin-bottom:0">
+        <label class="fl">Pelanggan</label>
+        <select class="fc" id="trx-pelanggan"><option value="">-- Umum (tanpa akun) --</option></select>
+      </div>
+    </div>
+
+    <!-- TAMBAH ITEM -->
+    <div class="card" style="padding:13px;margin-bottom:10px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+        <span>➕ TAMBAH ITEM</span>
+        <span style="font-size:10px;color:var(--hint);font-weight:500">bisa tambah lebih dari 1 item</span>
+      </div>
+
+      <!-- TIPE PRODUK SELECTOR -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <button id="item-type-galon" onclick="setItemType('galon')"
+          style="border:2px solid var(--blue);background:var(--blue-light);border-radius:10px;padding:10px 6px;cursor:pointer;transition:.15s;font-family:inherit">
+          <div style="font-size:18px;margin-bottom:3px">🫙</div>
+          <div style="font-size:12px;font-weight:700;color:var(--blue)">Galon</div>
+          <div style="font-size:10px;color:var(--muted)">per unit</div>
+        </button>
+        <button id="item-type-tandon" onclick="setItemType('tandon')"
+          style="border:2px solid var(--border);background:var(--card);border-radius:10px;padding:10px 6px;cursor:pointer;transition:.15s;font-family:inherit">
+          <div style="font-size:18px;margin-bottom:3px">🪣</div>
+          <div style="font-size:12px;font-weight:700;color:var(--muted)">Tandon</div>
+          <div style="font-size:10px;color:var(--muted)">per liter</div>
+        </button>
+      </div>
+
+      <!-- FORM ITEM GALON -->
+      <div id="item-form-galon">
+        <div class="fg">
+          <label class="fl">Produk Galon</label>
+          <select class="fc" id="item-galon-produk" onchange="onItemGalonChange()"></select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Jumlah Galon (unit)</label>
+            <input type="number" class="fc" id="item-galon-jumlah" value="1" min="1" oninput="hitungItem()">
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Harga/unit (Rp)</label>
+            <input type="number" class="fc" id="item-galon-harga" oninput="hitungItem()">
+          </div>
+        </div>
+        <div style="background:var(--blue-light);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--blue);font-weight:600" id="item-galon-rincian">0 unit × Rp 0</span>
+          <span style="font-size:15px;font-weight:700;color:var(--blue)" id="item-galon-subtotal">Rp 0</span>
+        </div>
+      </div>
+
+      <!-- FORM ITEM TANDON -->
+      <div id="item-form-tandon" style="display:none">
+        <div style="background:var(--teal-light);border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--teal);font-weight:500">
+          🪣 Sisa air tandon: <strong id="item-tandon-sisa">-</strong> L
+          <div class="tandon-bar" style="margin-top:4px"><div class="tandon-fill" id="item-tandon-bar" style="width:100%"></div></div>
+        </div>
+        <div class="fg">
+          <label class="fl">Jenis Air Tandon</label>
+          <select class="fc" id="item-tandon-produk" onchange="onItemTandonChange()"></select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Jumlah Galon (unit)</label>
+            <input type="number" class="fc" id="item-tandon-jumlah" value="1" min="1" oninput="hitungItem()">
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Harga/liter (Rp)</label>
+            <input type="number" class="fc" id="item-tandon-harga" oninput="hitungItem()">
+          </div>
+        </div>
+        <div style="background:var(--teal-light);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--teal);font-weight:600" id="item-tandon-rincian">0 galon × 0L × Rp 0</span>
+          <span style="font-size:15px;font-weight:700;color:var(--teal)" id="item-tandon-subtotal">Rp 0</span>
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" onclick="tambahKeKeranjang()" style="margin-top:12px;margin-bottom:0">
+        + Tambah ke Transaksi
+      </button>
+    </div>
+
+    <!-- KERANJANG / ITEM LIST -->
+    <div id="keranjang-wrap" style="display:none;margin-bottom:10px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">🛒 ITEM TRANSAKSI</div>
+      <div id="keranjang-list"></div>
+    </div>
+
+    <!-- DISKON & CATATAN -->
+    <div class="card" style="padding:13px;margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Diskon (Rp)</label>
+          <input type="number" class="fc" id="trx-diskon" value="0" min="0" placeholder="0" oninput="hitungGrandTotal()">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Catatan</label>
+          <input type="text" class="fc" id="trx-catatan" placeholder="Opsional">
+        </div>
+      </div>
+    </div>
+
+    <!-- GRAND TOTAL -->
+    <div style="background:linear-gradient(135deg,#1a6bff,#7c3aed);border-radius:var(--r);padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:12px;color:rgba(255,255,255,.75);margin-bottom:2px">Total Pembayaran</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6)" id="grand-rincian">0 item</div>
+      </div>
+      <div style="font-size:26px;font-weight:700;color:#fff" id="grand-total">Rp 0</div>
+    </div>
+
+    <!-- METODE PEMBAYARAN -->
+    <div class="card" style="padding:13px;margin-bottom:10px">
+      <div class="fg" style="margin-bottom:0">
+        <label class="fl">Metode Pembayaran</label>
+        <select class="fc" id="trx-bayar">
+          <option value="tunai">💵 Tunai</option>
+          <option value="transfer">🏦 Transfer</option>
+          <option value="qris">📱 QRIS</option>
+          <option value="kredit">📋 Kredit / Hutang</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="simpanTransaksiJual()" style="margin-bottom:6px">
+      ✅ Simpan Transaksi
+    </button>
+    <button class="btn btn-danger" onclick="resetKeranjang()" style="margin-bottom:0">
+      🗑️ Batal / Reset
+    </button>
+
+  </div>
+</div>
+
+<!-- ===== HUTANG ===== -->
+<div id="page-hutang" class="page">
+  <div class="header">
+    <div class="header-row"><h2>Hutang & Piutang</h2></div>
+    <div class="header-sub">Kelola tagihan pelanggan</div>
+  </div>
+  <div class="main">
+    <div class="tabs" id="hutang-tabs">
+      <button class="tab active" onclick="switchHutangTab('daftar',this)">📋 Daftar</button>
+      <button class="tab" onclick="switchHutangTab('catat',this)">➕ Catat</button>
+      <button class="tab" onclick="switchHutangTab('bayar',this)">✅ Bayar</button>
+    </div>
+
+    <!-- DAFTAR HUTANG -->
+    <div id="htab-daftar">
+      <div class="grid2" style="margin-bottom:12px">
+        <div class="card" style="padding:11px"><div style="font-size:11px;color:var(--muted)">Total Piutang</div><div style="font-size:17px;font-weight:700;color:var(--red)" id="h-total-piutang">Rp 0</div></div>
+        <div class="card" style="padding:11px"><div style="font-size:11px;color:var(--muted)">Belum Lunas</div><div style="font-size:17px;font-weight:700;color:var(--amber)" id="h-count-hutang">0 trx</div></div>
+      </div>
+      <div id="h-daftar-list"></div>
+    </div>
+
+    <!-- CATAT HUTANG -->
+    <div id="htab-catat" style="display:none">
+      <div class="fg"><label class="fl">Pelanggan</label><select class="fc" id="h-catat-pelanggan"></select></div>
+      <div class="fg"><label class="fl">Jumlah Hutang (Rp)</label><input type="number" class="fc" id="h-catat-jumlah" placeholder="50000"></div>
+      <div class="fg"><label class="fl">Keterangan</label><input type="text" class="fc" id="h-catat-ket" placeholder="Misal: beli 10 galon"></div>
+      <div class="fg"><label class="fl">Jatuh Tempo</label><input type="date" class="fc" id="h-catat-tempo"></div>
+      <button class="btn btn-danger" onclick="simpanHutangBaru()">💳 Catat Hutang</button>
+    </div>
+
+    <!-- BAYAR HUTANG -->
+    <div id="htab-bayar" style="display:none">
+      <div class="fg"><label class="fl">Pelanggan</label><select class="fc" id="h-bayar-pelanggan" onchange="loadHutangPelanggan2()"></select></div>
+      <div id="h-bayar-info" style="margin-bottom:12px"></div>
+      <div class="fg"><label class="fl">Jumlah Bayar (Rp)</label><input type="number" class="fc" id="h-bayar-jumlah" placeholder="50000"></div>
+      <div class="fg"><label class="fl">Metode</label>
+        <select class="fc" id="h-bayar-metode">
+          <option value="tunai">Tunai</option>
+          <option value="transfer">Transfer</option>
+          <option value="qris">QRIS</option>
+        </select>
+      </div>
+      <button class="btn btn-green" onclick="simpanBayarHutang2()">✅ Konfirmasi Pembayaran</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RIWAYAT ===== -->
+<div id="page-riwayat" class="page">
+  <div class="header">
+    <div class="header-row"><h2>Riwayat & Laporan</h2>
+      <button class="btn btn-secondary btn-sm" onclick="exportToCSV()">📥 CSV</button>
+    </div>
+    <div class="header-sub">Transaksi & ringkasan keuangan</div>
+  </div>
+  <div class="main">
+    <!-- SUMMARY HERO -->
+    <div class="hero">
+      <div class="hero-label">Laba Bersih Bulan Ini</div>
+      <div class="hero-val" id="riwayat-laba">Rp 0</div>
+      <div class="hero-sub">Omzet: <span id="riwayat-omzet">Rp 0</span> · Pengeluaran: <span id="riwayat-pengeluaran">Rp 0</span></div>
+    </div>
+    <div class="grid2">
+      <div class="stat-card"><div class="stat-label">Galon Terjual</div><div class="stat-num" id="riwayat-galon" style="color:var(--blue);font-size:15px">Rp 0</div></div>
+      <div class="stat-card"><div class="stat-label">Tandon Terjual</div><div class="stat-num" id="riwayat-tandon" style="color:var(--teal);font-size:15px">Rp 0</div></div>
+      <div class="stat-card"><div class="stat-label">Piutang Aktif</div><div class="stat-num" id="riwayat-piutang" style="color:var(--red);font-size:15px">Rp 0</div></div>
+      <div class="stat-card"><div class="stat-label">Hutang Supplier</div><div class="stat-num" id="riwayat-hutang-sup" style="color:var(--amber);font-size:15px">Rp 0</div></div>
+    </div>
+    <!-- FILTER TABS -->
+    <div class="tabs" id="riwayat-tabs">
+      <button class="tab active" onclick="filterRiwayat('semua',this)">Semua</button>
+      <button class="tab" onclick="filterRiwayat('galon',this)">🫙 Galon</button>
+      <button class="tab" onclick="filterRiwayat('tandon',this)">🪣 Tandon</button>
+      <button class="tab" onclick="filterRiwayat('beli',this)">📦 Beli</button>
+      <button class="tab" onclick="filterRiwayat('hutang',this)">💳 Hutang</button>
+    </div>
+    <!-- LIST -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:700">Transaksi</div>
+      <span id="riwayat-page-info" style="font-size:11px;color:var(--muted)"></span>
+    </div>
+    <div id="riwayat-list"></div>
+    <div style="display:flex;gap:8px;margin-top:6px" id="riwayat-pagination"></div>
+  </div>
+</div>
+
+<!-- ===== PELANGGAN ===== -->
+<div id="page-pelanggan" class="page">
+  <div class="header">
+    <div class="header-row"><h2>Pelanggan</h2>
+      <button class="btn btn-primary btn-sm" onclick="resetAndOpenPelanggan()">+ Tambah</button>
+    </div>
+    <div class="header-sub">Daftar & hutang pelanggan</div>
+  </div>
+  <div class="main">
+    <input type="search" class="fc" placeholder="🔍 Cari pelanggan..." id="search-pelanggan" oninput="renderPelanggan()" style="margin-bottom:12px">
+    <div class="grid2">
+      <div class="card" style="padding:11px"><div style="font-size:11px;color:var(--muted)">Total Piutang</div><div style="font-size:17px;font-weight:700;color:var(--red)" id="total-piutang">Rp 0</div></div>
+      <div class="card" style="padding:11px"><div style="font-size:11px;color:var(--muted)">Pelanggan</div><div style="font-size:17px;font-weight:700" id="pelanggan-aktif">0</div></div>
+    </div>
+    <div id="pelanggan-list"></div>
+  </div>
+</div>
+
+<!-- ===== PRODUK ===== -->
+<div id="page-produk" class="page">
+  <div class="header">
+    <div class="header-row"><h2>Produk & Stok</h2></div>
+    <div class="header-sub">Galon kemasan & air tandon</div>
+  </div>
+  <div class="main">
+    <!-- TABS -->
+    <div class="tabs" id="produk-tabs">
+      <button class="tab active" onclick="filterProduk('galon',this)">🫙 Galon</button>
+      <button class="tab" onclick="filterProduk('tandon',this)">🪣 Tandon</button>
+    </div>
+
+    <!-- GALON SECTION -->
+    <div id="section-galon">
+      <div class="card" style="background:var(--blue-light);border-left:3px solid var(--blue);padding:12px;margin-bottom:10px">
+        <div style="font-size:12px;color:var(--blue);font-weight:600;margin-bottom:3px">💧 Produk Galon Kemasan</div>
+        <div style="font-size:11px;color:var(--muted)">Klik ➕/➖ pada produk untuk tambah atau kurangi stok.</div>
+      </div>
+      <button class="btn btn-secondary" onclick="openModalProduk('galon')" style="margin-bottom:10px">+ Tambah Jenis Produk Baru</button>
+      <div id="produk-galon-list"></div>
+    </div>
+
+    <!-- TANDON SECTION -->
+    <div id="section-tandon" style="display:none">
+      <div class="card" style="background:var(--teal-light);border-left:3px solid var(--teal);padding:12px;margin-bottom:10px">
+        <div style="font-size:12px;color:var(--teal);font-weight:600;margin-bottom:3px">🪣 Produk Air Tandon</div>
+        <div style="font-size:11px;color:var(--muted)">Air curah diisi ke tandon pelanggan. Harga diatur per volume.</div>
+      </div>
+
+      <!-- KAPASITAS DEFAULT -->
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;color:var(--muted)">⚙️ Kapasitas Tandon Default</div>
+          <button id="btn-edit-kapasitas" onclick="editKapasitas()"
+            style="border:none;background:var(--blue-light);color:var(--blue);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ Edit</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <div style="flex:1">
+            <label class="fl">Kapasitas Default (Liter)</label>
+            <input type="number" class="fc" id="tandon-kapasitas-default" placeholder="1000" disabled
+              style="background:var(--bg);color:var(--muted)">
+          </div>
+          <button id="btn-simpan-kapasitas" onclick="simpanKapasitasDefault()"
+            style="border:none;border-radius:var(--rs);padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--teal);color:#fff;display:none;white-space:nowrap;flex-shrink:0">✅ Simpan</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px">Dipakai sebagai default saat penjualan tandon.</div>
+      </div>
+
+      <!-- STATUS STOK AIR (readonly) -->
+      <div class="card" style="margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">📊 Status Stok Air Tandon</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:13px;color:var(--muted)">Sisa air saat ini</span>
+          <span style="font-size:18px;font-weight:700;color:var(--teal)" id="tandon-sisa-display">-</span>
+        </div>
+        <div class="tandon-bar"><div class="tandon-fill" id="tandon-fill-bar" style="width:100%"></div></div>
+        <div style="font-size:11px;color:var(--hint);margin-top:5px;text-align:center" id="tandon-pct">-</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;background:var(--bg);border-radius:6px;padding:7px 10px">
+          ℹ️ Stok berkurang otomatis dari penjualan tandon, bertambah dari pengisian air di bawah.
+        </div>
+
+        <!-- KOREKSI STOK -->
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--muted)">🔧 Koreksi Stok Manual</div>
+            <button id="btn-edit-koreksi" onclick="editKoreksi()"
+              style="border:none;background:var(--blue-light);color:var(--blue);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ Edit</button>
+          </div>
+          <div id="koreksi-form" style="opacity:.4;pointer-events:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="fg" style="margin-bottom:0">
+                <label class="fl">Operasi</label>
+                <select class="fc" id="tandon-koreksi-op" disabled>
+                  <option value="tambah">➕ Tambah</option>
+                  <option value="kurangi">➖ Kurangi</option>
+                </select>
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <label class="fl">Jumlah (Liter)</label>
+                <input type="number" class="fc" id="tandon-koreksi-jml" placeholder="100" min="1" disabled>
+              </div>
+            </div>
+            <div class="fg" style="margin-top:8px;margin-bottom:8px">
+              <label class="fl">Keterangan</label>
+              <input type="text" class="fc" id="tandon-koreksi-ket" placeholder="Alasan koreksi" disabled>
+            </div>
+            <button id="btn-simpan-koreksi" class="btn btn-secondary" onclick="simpanKoreksiTandon()" style="margin-bottom:0" disabled>✅ Simpan Koreksi</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAMBAH AIR TANDON -->
+      <div class="card" style="margin-bottom:10px;border-left:3px solid var(--teal)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;color:var(--teal)">💧 Tambah Stok Air Tandon</div>
+          <button id="btn-tambah-air" onclick="bukaTambahAir()"
+            style="border:none;background:var(--teal);color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">+ Tambah</button>
+        </div>
+        <div id="tambah-air-form" style="display:none">
+          <div class="fg">
+            <label class="fl">Volume Air Masuk (Liter)</label>
+            <input type="number" class="fc" id="tambah-air-liter" placeholder="1000" min="1" oninput="hitungTambahAir()">
+          </div>
+          <div class="fg">
+            <label class="fl">Harga per 1.000 Liter (Rp)</label>
+            <input type="number" class="fc" id="tambah-air-harga-per1000" placeholder="50000" oninput="hitungTambahAir()">
+          </div>
+          <div style="background:var(--teal-light);border-radius:8px;padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--teal);font-weight:600">Total Biaya</span>
+            <span style="font-size:18px;font-weight:700;color:var(--teal)" id="tambah-air-total">Rp 0</span>
+          </div>
+          <div class="fg">
+            <label class="fl">Sumber / Supplier</label>
+            <input type="text" class="fc" id="tambah-air-supplier" placeholder="Nama sumber air">
+          </div>
+          <div class="fg">
+            <label class="fl">Status Bayar</label>
+            <select class="fc" id="tambah-air-status">
+              <option value="lunas">Lunas</option>
+              <option value="hutang">Hutang</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:10px">
+            <label class="fl">Catatan</label>
+            <input type="text" class="fc" id="tambah-air-catatan" placeholder="Opsional">
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-teal" onclick="simpanTambahAir()" style="margin-bottom:0;flex:1">✅ Simpan</button>
+            <button class="btn btn-secondary" onclick="tutupTambahAir()" style="margin-bottom:0;width:auto;padding:11px 16px">Batal</button>
+          </div>
+        </div>
+        <div id="tambah-air-done" style="display:none;font-size:12px;color:var(--teal);font-weight:500;padding:4px 0">
+          ✅ Tersimpan. Klik <strong>+ Tambah</strong> untuk pengisian berikutnya.
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" onclick="openModalProduk('tandon')" style="margin-bottom:10px">+ Tambah Jenis Produk Tandon Baru</button>
+      <div id="produk-tandon-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== NERACA MODAL ===== -->
+<div id="page-neraca" class="page">
+  <div class="header">
+    <div class="header-row"><h2>Neraca Modal</h2></div>
+    <div class="header-sub">Total modal produk galon & tandon</div>
+  </div>
+  <div class="main">
+
+    <!-- SUMMARY HERO -->
+    <div class="hero">
+      <div class="hero-label">Total Modal Keseluruhan</div>
+      <div class="hero-val" id="neraca-total-modal">Rp 0</div>
+      <div class="hero-sub" id="neraca-summary-sub">Galon + Tandon</div>
+    </div>
+
+    <!-- SUMMARY GRID -->
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="stat-card">
+        <div class="stat-label">Modal Galon</div>
+        <div class="stat-num" id="neraca-modal-galon" style="color:var(--blue);font-size:16px">Rp 0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px" id="neraca-galon-unit">0 unit stok</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Modal Tandon</div>
+        <div class="stat-num" id="neraca-modal-tandon" style="color:var(--teal);font-size:16px">Rp 0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px" id="neraca-tandon-liter">0 liter stok</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Potensi Omzet</div>
+        <div class="stat-num" id="neraca-potensi-omzet" style="color:var(--green);font-size:16px">Rp 0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">jika semua terjual</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Potensi Laba</div>
+        <div class="stat-num" id="neraca-potensi-laba" style="color:var(--amber);font-size:16px">Rp 0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">omzet − modal</div>
+      </div>
+    </div>
+
+    <!-- GALON SECTION -->
+    <div class="sec" style="margin-bottom:8px">🫙 Rincian Modal Galon Kemasan</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding:8px 12px;border-bottom:1px solid var(--border)">
+        <span>Produk</span>
+        <span style="text-align:right;padding-right:10px">Stok</span>
+        <span style="text-align:right;padding-right:10px">Modal/unit</span>
+        <span style="text-align:right">Total Modal</span>
+      </div>
+      <div id="neraca-galon-rows"></div>
+      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:12px;font-weight:700;background:var(--blue-light);padding:10px 12px;border-top:1px solid var(--border)">
+        <span style="color:var(--blue)">TOTAL GALON</span>
+        <span style="text-align:right;padding-right:10px;color:var(--blue)" id="neraca-galon-total-unit">-</span>
+        <span style="text-align:right;padding-right:10px"></span>
+        <span style="text-align:right;color:var(--blue);font-size:13px" id="neraca-galon-total-modal">Rp 0</span>
+      </div>
+    </div>
+
+    <!-- TANDON SECTION -->
+    <div class="sec" style="margin-top:14px;margin-bottom:8px">🪣 Rincian Modal Air Tandon</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding:8px 12px;border-bottom:1px solid var(--border)">
+        <span>Produk</span>
+        <span style="text-align:right;padding-right:10px">Stok Air</span>
+        <span style="text-align:right;padding-right:10px">Harga Beli</span>
+        <span style="text-align:right">Total Modal</span>
+      </div>
+      <div id="neraca-tandon-rows"></div>
+      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:12px;font-weight:700;background:var(--teal-light);padding:10px 12px;border-top:1px solid var(--border)">
+        <span style="color:var(--teal)">TOTAL TANDON</span>
+        <span style="text-align:right;padding-right:10px;color:var(--teal)" id="neraca-tandon-total-liter">-</span>
+        <span style="text-align:right;padding-right:10px"></span>
+        <span style="text-align:right;color:var(--teal);font-size:13px" id="neraca-tandon-total-modal">Rp 0</span>
+      </div>
+    </div>
+
+    <!-- CATATAN -->
+    <div style="background:var(--amber-light);border-radius:var(--rs);padding:12px;margin-top:12px;font-size:12px;color:#92400e;line-height:1.6">
+      ⚠️ <strong>Catatan:</strong> Modal galon dihitung dari <em>harga modal × stok saat ini</em>. Modal tandon dihitung dari nilai rata-rata harga beli air yang masuk.
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FAQ ===== -->
+<div id="page-faq" class="page">
+  <div class="header"><div class="header-row"><h2>❓ FAQ</h2></div><div class="header-sub">Pertanyaan yang sering ditanyakan</div></div>
+  <div class="main">
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">💧 Apa itu MAZU WATER?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">MAZU WATER adalah sistem manajemen depot air minum isi ulang yang membantu Anda mencatat penjualan, stok galon, stok air tandon, data pelanggan, hutang piutang, dan laporan keuangan secara digital.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🫙 Apa bedanya produk Galon dan Tandon?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7"><strong>Galon Kemasan</strong> adalah produk air minum bermerek (seperti Aqua, Le Minerale, Air RO) yang dijual per unit galon. Stok dihitung per satuan.<br><br><strong>Air Tandon</strong> adalah air curah yang diisi langsung ke tandon milik pelanggan, dijual berdasarkan volume (liter) dengan harga yang bisa diatur per volume tertentu (contoh: per 19 liter).</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">📦 Bagaimana cara menambah stok galon?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Produk → tab Galon</strong>. Di setiap kartu produk terdapat tombol <strong>➕ Tambah</strong> dan <strong>➖ Kurangi</strong>. Klik tombol tersebut untuk mencatat perubahan stok, lengkap dengan jumlah, harga modal, dan keterangan supplier.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🪣 Bagaimana cara menambah stok air tandon?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Produk → tab Tandon</strong>. Pada bagian <em>"💧 Tambah Stok Air Tandon"</em>, klik tombol <strong>+ Tambah</strong>, isi volume air (liter), harga per 1.000 liter, nama sumber/supplier, lalu simpan. Stok akan otomatis bertambah.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🛒 Bagaimana cara mencatat penjualan?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Penjualan</strong>. Pilih pelanggan, lalu pilih tipe produk (🫙 Galon atau 🪣 Tandon). Isi detail produk dan jumlah, klik <strong>"+ Tambah ke Transaksi"</strong>. Anda bisa menambahkan beberapa item sekaligus sebelum menekan <strong>✅ Simpan Transaksi</strong>.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">💳 Bagaimana cara mencatat hutang pelanggan?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Ada dua cara: (1) Saat penjualan, pilih metode pembayaran <em>Kredit / Hutang</em>. (2) Buka menu <strong>Hutang → tab Catat</strong> untuk mencatat hutang manual. Untuk pembayaran hutang, gunakan <strong>Hutang → tab Bayar</strong>.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🏦 Apa itu Neraca Modal?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Neraca Modal menampilkan estimasi total modal yang tertanam di stok saat ini — baik galon maupun air tandon. Termasuk perkiraan potensi omzet dan laba jika semua stok terjual. Gunakan ini untuk memantau kesehatan modal usaha Anda.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">👥 Bagaimana cara mengelola data pelanggan?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Pelanggan</strong>. Klik <strong>+ Tambah</strong> untuk mendaftarkan pelanggan baru. Setiap pelanggan bisa memiliki kapasitas tandon yang berbeda. Klik ✏️ untuk edit data, 🗑️ untuk hapus. Klik nama pelanggan untuk melihat riwayat transaksinya.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">📊 Bagaimana cara melihat laporan keuangan?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Riwayat</strong>. Di bagian atas terdapat ringkasan laba bersih, omzet, dan pengeluaran bulan ini. Di bawahnya ada daftar transaksi yang bisa difilter dan dinavigasi dengan tombol Prev/Next. Tersedia juga tombol <strong>📥 Export CSV</strong> untuk mengunduh data.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🔐 Bagaimana cara mengubah password?</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>⚙️ Setelan</strong>. Isi kolom <em>Username Baru</em> dan <em>Password Baru</em>, konfirmasi password, lalu klik <strong>💾 Simpan Pengaturan</strong>. Kosongkan kolom password jika hanya ingin mengubah profil depot saja.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:10px;background:var(--blue-light);border-left:3px solid var(--blue)">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--blue)">💡 Tips Penggunaan</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8">
+        • Tambahkan produk galon dan tandon terlebih dahulu sebelum mencatat penjualan<br>
+        • Isi stok awal di menu Produk setelah menambahkan produk baru<br>
+        • Daftarkan pelanggan tetap agar riwayat transaksi dan hutang lebih terstruktur<br>
+        • Gunakan fitur Koreksi Stok di menu Tandon jika ada selisih antara fisik dan sistem<br>
+        • Cek Neraca Modal secara rutin untuk memastikan modal tidak stagnan di stok
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== PENGATURAN ===== -->
+<div id="page-pengaturan" class="page">
+  <div class="header"><div class="header-row"><h2>⚙️ Setelan</h2></div><div class="header-sub">Profil depot & keamanan akun</div></div>
+  <div class="main">
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">PROFIL DEPOT</div>
+      <div class="fg"><label class="fl">Nama Depot</label><input type="text" class="fc" id="cfg-nama" value="MAZU WATER"></div>
+      <div class="fg"><label class="fl">Pemilik</label><input type="text" class="fc" id="cfg-pemilik" placeholder="Nama pemilik"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Alamat</label><input type="text" class="fc" id="cfg-alamat" placeholder="Alamat depot"></div>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">🔐 UBAH USERNAME & PASSWORD</div>
+      <div class="fg"><label class="fl">Username Baru</label><input type="text" class="fc" id="cfg-username" placeholder="Username baru" autocomplete="off"></div>
+      <div class="fg"><label class="fl">Password Baru</label><input type="password" class="fc" id="cfg-password" placeholder="Password baru" autocomplete="off"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Konfirmasi Password</label><input type="password" class="fc" id="cfg-password2" placeholder="Ulangi password baru" autocomplete="off"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Kosongkan kolom password jika tidak ingin mengubah.</div>
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan Pengaturan</button>
+    <button class="btn btn-danger" onclick="resetData()" style="margin-bottom:0">🗑️ Reset Semua Data</button>
+  </div>
+</div>
+
+</div><!-- end content-wrap -->
+
+<!-- ══════════ CUSTOM CONFIRM MODAL ══════════ -->
+<div id="custom-confirm">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirm-icon">🚪</div>
+    <div class="confirm-title" id="confirm-title">Yakin ingin logout?</div>
+    <div class="confirm-sub" id="confirm-sub">Sesi Anda akan diakhiri dan Anda perlu login kembali.</div>
+    <div class="confirm-btns">
+      <button class="confirm-no" id="confirm-no-btn" onclick="closeConfirm()">❌ Tidak</button>
+      <button class="confirm-yes" id="confirm-yes-btn" onclick="confirmYes()">✅ Ya, Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ MODALS ══════════════════════ -->
+
+<!-- MODAL: JUAL GALON -->
+<div class="modal-bg" id="modal-jual-galon">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">🫙 Jual Galon Kemasan</div>
+    <div class="fg">
+      <label class="fl">Pelanggan</label>
+      <select class="fc" id="jg-pelanggan"><option value="">-- Umum --</option></select>
+    </div>
+    <div class="fg">
+      <label class="fl">Produk Galon</label>
+      <select class="fc" id="jg-produk" onchange="onJualGalonProdukChange()"></select>
+    </div>
+    <div class="fg">
+      <label class="fl">Diskon (Rp) <span style="color:var(--hint);font-weight:400">— opsional</span></label>
+      <input type="number" class="fc" id="jg-diskon" value="0" min="0" placeholder="0" oninput="hitungJualGalon()">
+    </div>
+    <div class="fg">
+      <label class="fl">Jumlah Unit</label>
+      <input type="number" class="fc" id="jg-jumlah" value="1" min="1" oninput="hitungJualGalon()">
+    </div>
+    <div class="card" style="background:var(--blue-light);margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="color:var(--blue);font-weight:600;font-size:13px">Total Bayar</span>
+        <span style="color:var(--blue);font-weight:700;font-size:20px" id="jg-total">Rp 0</span>
+      </div>
+      <div style="font-size:11px;color:var(--blue);opacity:.75" id="jg-rincian"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Metode Pembayaran</label>
+      <select class="fc" id="jg-bayar">
+        <option value="tunai">Tunai</option>
+        <option value="transfer">Transfer</option>
+        <option value="qris">QRIS</option>
+        <option value="kredit">Kredit (Hutang)</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Catatan</label><input type="text" class="fc" id="jg-catatan" placeholder="Opsional"></div>
+    <button class="btn btn-primary" onclick="simpanJualGalon()">✅ Simpan Penjualan Galon</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-jual-galon')">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL: JUAL TANDON -->
+<div class="modal-bg" id="modal-jual-tandon">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">🪣 Jual Air Tandon (Literan)</div>
+    <div class="fg">
+      <label class="fl">Pelanggan</label>
+      <select class="fc" id="jt-pelanggan"><option value="">-- Umum --</option></select>
+    </div>
+    <div class="fg">
+      <label class="fl">Jenis Air</label>
+      <select class="fc" id="jt-produk" onchange="onJualTandonProdukChange()"></select>
+    </div>
+    <div style="background:var(--teal-light);border-radius:var(--rs);padding:12px;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--teal);font-weight:600;margin-bottom:6px">📊 Status Tandon</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Sisa air: <strong id="jt-sisa-display">-</strong> liter</div>
+      <div class="tandon-bar"><div class="tandon-fill" id="jt-fill-bar" style="width:100%"></div></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Diskon (Rp) <span style="color:var(--hint);font-weight:400">— opsional</span></label>
+      <input type="number" class="fc" id="jt-diskon" value="0" min="0" placeholder="0" oninput="hitungJualTandon()">
+    </div>
+    <div class="fg">
+      <label class="fl">Jumlah Galon (unit)</label>
+      <input type="number" class="fc" id="jt-jumlah-galon" value="1" min="1" oninput="hitungJualTandon()">
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">💡 Jumlah galon yang dibeli pelanggan.</div>
+    </div>
+    <div class="card" style="background:var(--teal-light);margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="color:var(--teal);font-weight:600;font-size:13px">Total Bayar</span>
+        <span style="color:var(--teal);font-weight:700;font-size:20px" id="jt-total">Rp 0</span>
+      </div>
+      <div style="font-size:11px;color:var(--teal);opacity:.8" id="jt-rincian"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Metode Pembayaran</label>
+      <select class="fc" id="jt-bayar">
+        <option value="tunai">Tunai</option>
+        <option value="transfer">Transfer</option>
+        <option value="qris">QRIS</option>
+        <option value="kredit">Kredit (Hutang)</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Catatan</label><input type="text" class="fc" id="jt-catatan" placeholder="Opsional"></div>
+    <button class="btn btn-teal" onclick="simpanJualTandon()">✅ Simpan Penjualan Tandon</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-jual-tandon')">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL: CATAT HUTANG -->
+<div class="modal-bg" id="modal-hutang">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">💳 Catat Hutang Pelanggan</div>
+    <div class="fg"><label class="fl">Pelanggan</label><select class="fc" id="hutang-pelanggan"></select></div>
+    <div class="fg"><label class="fl">Jumlah Hutang (Rp)</label><input type="number" class="fc" id="hutang-jumlah" placeholder="50000"></div>
+    <div class="fg"><label class="fl">Keterangan</label><input type="text" class="fc" id="hutang-ket" placeholder="Misal: beli 10 galon"></div>
+    <div class="fg"><label class="fl">Jatuh Tempo</label><input type="date" class="fc" id="hutang-tempo"></div>
+    <button class="btn btn-danger" onclick="simpanHutang()">💳 Catat Hutang</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-hutang')">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL: BAYAR HUTANG -->
+<div class="modal-bg" id="modal-bayar-hutang">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">✅ Pembayaran Hutang</div>
+    <div class="fg"><label class="fl">Pelanggan</label><select class="fc" id="bayar-pelanggan" onchange="loadHutangPelanggan()"></select></div>
+    <div id="hutang-list-bayar" style="margin-bottom:12px"></div>
+    <div class="fg"><label class="fl">Jumlah Bayar (Rp)</label><input type="number" class="fc" id="bayar-jumlah" placeholder="50000"></div>
+    <div class="fg"><label class="fl">Metode</label><select class="fc" id="bayar-metode"><option value="tunai">Tunai</option><option value="transfer">Transfer</option><option value="qris">QRIS</option></select></div>
+    <button class="btn btn-green" onclick="simpanBayarHutang()">✅ Konfirmasi Pembayaran</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-bayar-hutang')">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL: TAMBAH PELANGGAN -->
+<div class="modal-bg" id="modal-tambah-pelanggan">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="modal-plg-title">👤 Tambah Pelanggan</div>
+    <input type="hidden" id="plg-edit-id">
+    <div class="fg"><label class="fl">Nama Lengkap</label><input type="text" class="fc" id="plg-nama" placeholder="Nama pelanggan"></div>
+    <div class="fg"><label class="fl">No. HP / WhatsApp</label><input type="tel" class="fc" id="plg-hp" placeholder="08xx-xxxx-xxxx"></div>
+    <div class="fg"><label class="fl">Alamat</label><input type="text" class="fc" id="plg-alamat" placeholder="Alamat lengkap"></div>
+    <div class="fg"><label class="fl">Kapasitas Tandon Pelanggan (Liter)</label><input type="number" class="fc" id="plg-tandon" placeholder="1000" value="1000"></div>
+    <div class="fg"><label class="fl">Catatan</label><input type="text" class="fc" id="plg-catatan" placeholder="Langganan setiap 3 hari, dll"></div>
+    <button class="btn btn-primary" onclick="simpanPelanggan()">✅ Simpan Pelanggan</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-tambah-pelanggan')">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL: STOK GALON -->
+<div class="modal-bg" id="modal-stok-galon">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="modal-stok-galon-title">📦 Tambah Stok</div>
+    <input type="hidden" id="stok-produk-id">
+    <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:11px;color:var(--muted)">Produk</div>
+        <div style="font-size:14px;font-weight:700" id="stok-produk-nama">-</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:var(--muted)">Stok saat ini</div>
+        <div style="font-size:18px;font-weight:700;color:var(--blue)" id="stok-saat-ini">0</div>
+      </div>
+    </div>
+    <input type="hidden" id="stok-op">
+    <div class="fg">
+      <label class="fl" id="stok-jumlah-label">Jumlah Tambah (unit)</label>
+      <input type="number" class="fc" id="stok-jumlah" value="10" min="1">
+    </div>
+    <div class="fg" id="stok-harga-wrap">
+      <label class="fl">Harga Modal per unit (Rp) — opsional</label>
+      <input type="number" class="fc" id="stok-harga" placeholder="3500">
+    </div>
+    <div class="fg">
+      <label class="fl" id="stok-ket-label">Supplier / Keterangan</label>
+      <input type="text" class="fc" id="stok-ket" placeholder="Nama supplier">
+    </div>
+    <button class="btn btn-primary" id="btn-simpan-stok" onclick="simpanStokGalonModal()" style="margin-bottom:6px">✅ Simpan</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-stok-galon')">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL: TAMBAH/EDIT PRODUK -->
+<div class="modal-bg" id="modal-produk">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="modal-produk-title">📦 Tambah Produk</div>
+    <input type="hidden" id="produk-edit-id">
+    <input type="hidden" id="produk-edit-tipe">
+    <div id="produk-tipe-info" style="margin-bottom:12px"></div>
+    <div class="fg"><label class="fl">Nama Produk</label><input type="text" class="fc" id="produk-nama" placeholder="Misal: Aqua Galon 19L"></div>
+    <div class="fg"><label class="fl">Kode Produk</label><input type="text" class="fc" id="produk-kode" placeholder="AQUA19, RO19, dll"></div>
+
+    <!-- GALON fields -->
+    <div id="fg-galon-fields">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Harga Jual/unit (Rp)</label>
+          <input type="number" class="fc" id="produk-harga" placeholder="7000">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Harga Modal/unit (Rp)</label>
+          <input type="number" class="fc" id="produk-harga-modal" placeholder="3500">
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px;margin-bottom:12px">💡 Harga modal digunakan untuk menghitung laba kotor</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Stok Awal (unit)</label>
+          <input type="number" class="fc" id="produk-stok" placeholder="0" value="0" min="0">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Minimal Stok (unit)</label>
+          <input type="number" class="fc" id="produk-min-stok" placeholder="5" value="5" min="0">
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;margin-bottom:12px">⚠️ Alert muncul jika stok ≤ minimal stok</div>
+    </div>
+
+    <!-- TANDON fields -->
+    <div id="fg-tandon-fields" style="display:none">
+      <div style="background:var(--teal-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--teal);font-weight:600">
+        Contoh: Harga per <strong>19</strong> Liter = <strong>Rp 5.000</strong>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Per ... Liter</label>
+          <input type="number" class="fc" id="produk-per-liter" placeholder="19" value="19" min="1" oninput="previewHargaTandon()">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Harga (Rp)</label>
+          <input type="number" class="fc" id="produk-harga-tandon" placeholder="5000" oninput="previewHargaTandon()">
+        </div>
+      </div>
+      <div id="tandon-harga-preview" style="background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:8px;margin-bottom:12px;font-size:13px;color:var(--text);font-weight:600;text-align:center">
+        — isi kolom di atas —
+      </div>
+    </div>
+
+    <div class="fg"><label class="fl">Deskripsi (opsional)</label><input type="text" class="fc" id="produk-deskripsi" placeholder="Keterangan tambahan"></div>
+    <div class="fg">
+      <label class="fl">Status</label>
+      <select class="fc" id="produk-status"><option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="simpanProduk()">✅ Simpan Produk</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-produk')">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL: DETAIL PELANGGAN -->
+<div class="modal-bg" id="modal-detail-pelanggan">
+  <div class="modal"><div id="detail-pelanggan-content"></div><button class="btn btn-secondary" onclick="closeModal('modal-detail-pelanggan')">Tutup</button></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// HELPERS (must be before DB init)
+// ═══════════════════════════════════════
+function today(){return new Date().toISOString().slice(0,10)}
+function fmt(n){return 'Rp '+Number(n||0).toLocaleString('id-ID')}
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
+
+// ═══════════════════════════════════════
+// DATA STORE
+// ═══════════════════════════════════════
+let DB = {
+  settings:{
+    namaDepot:'MAZU WATER', pemilik:'', alamat:'',
+    stokAwal:0,
+    tandonKapasitas:1000, tandonStok:0,
+    username:'ztronik', password:'ztronik13'
+  },
+  produkGalon:[],
+  produkTandon:[],
+  pelanggan:[],
+  transaksi:[]
+};
+
+// ── Google Sheets backend URL (hardcoded from GAS deployment) ──
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw9SG_1x3a9z6rkQSThXEsfSxebYe9LyAaczSgjeKK-ibVaUtmVwpARyKJ8lazjckA59A/exec';
+
+// ── Local cache (localStorage) as offline buffer ──
+function saveDB(){localStorage.setItem('ztronik_db',JSON.stringify(DB))}
+function loadDB(){
+  // Clear old keys from previous versions
+  if(localStorage.getItem('mazuwater_db')) localStorage.removeItem('mazuwater_db');
+  // Version check — if stored version < current, clear to get fresh empty state
+  const CURRENT_VERSION = '2';
+  if(localStorage.getItem('ztronik_version') !== CURRENT_VERSION){
+    localStorage.removeItem('ztronik_db');
+    localStorage.setItem('ztronik_version', CURRENT_VERSION);
+    return; // use default empty DB
+  }
+  const s=localStorage.getItem('ztronik_db');
+  if(s){
+    try{
+      const loaded=JSON.parse(s);
+      DB={...DB,...loaded};
+      if(!DB.produkGalon) DB.produkGalon=[];
+      if(!DB.produkTandon) DB.produkTandon=[];
+      if(!DB.pelanggan) DB.pelanggan=[];
+      if(!DB.transaksi) DB.transaksi=[];
+    }catch(e){}
+  }
+}
+
+// ── Push satu baris ke Sheets ──
+async function pushToSheets(action, data){
+  try{
+    await fetch(GAS_URL,{method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action, data, depot:DB.settings.namaDepot})});
+  }catch(e){console.warn('Sheets push failed:',e.message)}
+}
+
+// ── Tarik semua data dari Sheets (dipakai saat init) ──
+async function loadFromSheets(){
+  showSyncStatus('⏳ Memuat data dari Sheets...');
+  try{
+    const r=await fetch(GAS_URL+'?action=getAll&depot='+encodeURIComponent(DB.settings.namaDepot));
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(d.transaksi)  DB.transaksi  = d.transaksi;
+    if(d.pelanggan)  DB.pelanggan  = d.pelanggan;
+    if(d.produkGalon) DB.produkGalon = d.produkGalon;
+    if(d.produkTandon)DB.produkTandon= d.produkTandon;
+    if(d.settings)   Object.assign(DB.settings, d.settings);
+    saveDB();
+    showSyncStatus('✅ Data berhasil dimuat');
+    renderBeranda();
+  }catch(e){
+    showSyncStatus('⚠️ Gagal koneksi Sheets — pakai data lokal');
+    console.warn(e);
+  }
+}
+
+function showSyncStatus(msg){
+  const el=document.getElementById('sync-status');
+  if(el){el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
+}
+
+loadDB();
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-links .nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  // find nav-btn by onclick text matching page name
+  document.querySelectorAll('.nav-links .nav-btn').forEach(btn=>{
+    const oc=btn.getAttribute('onclick')||'';
+    if(oc.includes("showPage('"+p+"')")) btn.classList.add('active');
+  });
+  if(p==='beranda') renderBeranda();
+  if(p==='jual') initJualPage();
+  if(p==='hutang') renderHutangPage();
+  if(p==='riwayat'){ riwayatPage=0; riwayatFilter='semua'; renderRiwayat(); }
+  if(p==='neraca') renderNeraca();
+  if(p==='pelanggan') renderPelanggan();
+  if(p==='produk') renderProduk();
+  if(p==='faq') {}
+  if(p==='pengaturan') loadSettings();
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open')}));
+
+function openJualGalon(){ showPage('jual'); switchJualTab('galon'); }
+function openJualTandon(){ showPage('jual'); switchJualTab('tandon'); }
+
+// ═══════════════════════════════════════
+// JUAL PAGE — unified cart
+// ═══════════════════════════════════════
+let keranjang = []; // [{tipe, produkId, produkNama, jumlah, harga, subtotal, kap}]
+let itemType = 'galon';
+
+function initJualPage(){
+  populatePelangganSelectJual();
+  setItemType('galon');
+  renderKeranjang();
+}
+
+function populatePelangganSelectJual(){
+  ['trx-pelanggan','h-catat-pelanggan','h-bayar-pelanggan'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    const isOpt=(id==='trx-pelanggan');
+    el.innerHTML=(isOpt?'<option value="">-- Umum (tanpa akun) --</option>':'')+DB.pelanggan.map(p=>`<option value="${p.nama}">${p.nama}</option>`).join('');
+  });
+}
+
+function setItemType(type){
+  itemType=type;
+  const isGalon=type==='galon';
+  document.getElementById('item-form-galon').style.display=isGalon?'':'none';
+  document.getElementById('item-form-tandon').style.display=isGalon?'none':'';
+
+  const btnG=document.getElementById('item-type-galon');
+  const btnT=document.getElementById('item-type-tandon');
+  btnG.style.borderColor=isGalon?'var(--blue)':'var(--border)';
+  btnG.style.background=isGalon?'var(--blue-light)':'var(--card)';
+  btnG.querySelector('div:nth-child(2)').style.color=isGalon?'var(--blue)':'var(--muted)';
+  btnT.style.borderColor=!isGalon?'var(--teal)':'var(--border)';
+  btnT.style.background=!isGalon?'var(--teal-light)':'var(--card)';
+  btnT.querySelector('div:nth-child(2)').style.color=!isGalon?'var(--teal)':'var(--muted)';
+
+  if(isGalon){
+    const sel=document.getElementById('item-galon-produk');
+    const aktif=DB.produkGalon.filter(p=>p.status==='aktif');
+    sel.innerHTML=aktif.length?aktif.map(p=>`<option value="${p.id}" data-harga="${p.harga}">${p.nama} — ${fmt(p.harga)}/unit</option>`)
+      .join(''):'<option value="">Belum ada produk galon</option>';
+    if(aktif.length) document.getElementById('item-galon-harga').value=aktif[0].harga;
+    hitungItem();
+  } else {
+    const sel=document.getElementById('item-tandon-produk');
+    const aktif=DB.produkTandon.filter(p=>p.status==='aktif');
+    sel.innerHTML=aktif.length?aktif.map(p=>{
+      const per=parseInt(p.perLiter)||19;
+      const harga=parseInt(p.hargaTandon)||0;
+      return `<option value="${p.id}" data-per="${per}" data-harga="${harga}">${p.nama} — ${fmt(harga)}/${per}L</option>`;
+    }).join(''):'<option value="">Belum ada produk tandon</option>';
+    if(aktif.length){
+      document.getElementById('item-tandon-harga').value=aktif[0].hargaTandon||0;
+    }
+    const sisa=getTandonStok();
+    const kap=parseInt(DB.settings.tandonKapasitas)||1000;
+    document.getElementById('item-tandon-sisa').textContent=sisa.toLocaleString('id-ID');
+    document.getElementById('item-tandon-bar').style.width=Math.min(100,Math.round(sisa/kap*100))+'%';
+    hitungItem();
+  }
+}
+
+function onItemGalonChange(){
+  const sel=document.getElementById('item-galon-produk');
+  const h=sel.options[sel.selectedIndex]?.getAttribute('data-harga')||0;
+  document.getElementById('item-galon-harga').value=h;
+  hitungItem();
+}
+function onItemTandonChange(){
+  const sel=document.getElementById('item-tandon-produk');
+  const opt=sel.options[sel.selectedIndex];
+  const harga=opt?.getAttribute('data-harga')||0;
+  document.getElementById('item-tandon-harga').value=harga;
+  hitungItem();
+}
+
+function hitungItem(){
+  if(itemType==='galon'){
+    const j=parseInt(document.getElementById('item-galon-jumlah')?.value)||0;
+    const h=parseFloat(document.getElementById('item-galon-harga')?.value)||0;
+    const sub=j*h;
+    document.getElementById('item-galon-subtotal').textContent=fmt(sub);
+    document.getElementById('item-galon-rincian').textContent=j+' unit × '+fmt(h);
+  } else {
+    const j=parseInt(document.getElementById('item-tandon-jumlah')?.value)||0;
+    const harga=parseFloat(document.getElementById('item-tandon-harga')?.value)||0;
+    const sel=document.getElementById('item-tandon-produk');
+    const per=parseInt(sel?.options[sel?.selectedIndex]?.getAttribute('data-per')||19);
+    const sub=j*harga;
+    document.getElementById('item-tandon-subtotal').textContent=fmt(sub);
+    document.getElementById('item-tandon-rincian').textContent=j+' × '+fmt(harga)+'/'+per+'L';
+  }
+}
+
+function tambahKeKeranjang(){
+  if(itemType==='galon'){
+    const sel=document.getElementById('item-galon-produk');
+    if(!sel.value){toast('Pilih produk galon','error');return}
+    const produkId=sel.value;
+    const produkNama=sel.options[sel.selectedIndex]?.text.split(' —')[0]||'';
+    const jumlah=parseInt(document.getElementById('item-galon-jumlah').value)||1;
+    const harga=parseFloat(document.getElementById('item-galon-harga').value)||0;
+    if(getGalonStok()<jumlah){toast('⚠️ Stok galon tidak cukup!','error');return}
+    keranjang.push({tipe:'jual-galon',produkId,produkNama,jumlah,harga,subtotal:jumlah*harga});
+    document.getElementById('item-galon-jumlah').value=1;
+  } else {
+    const sel=document.getElementById('item-tandon-produk');
+    if(!sel.value){toast('Pilih produk tandon','error');return}
+    const produkId=sel.value;
+    const produkNama=sel.options[sel.selectedIndex]?.text.split(' —')[0]||'';
+    const jumlah=parseInt(document.getElementById('item-tandon-jumlah').value)||1;
+    const harga=parseFloat(document.getElementById('item-tandon-harga').value)||0;
+    const per=parseInt(sel.options[sel.selectedIndex]?.getAttribute('data-per')||19);
+    const totalLiter=jumlah*per;
+    if(getTandonStok()<totalLiter){toast('⚠️ Air tandon tidak cukup!','error');return}
+    keranjang.push({tipe:'jual-tandon',produkId,produkNama,jumlah,harga,per,totalLiter,subtotal:jumlah*harga});
+    document.getElementById('item-tandon-jumlah').value=1;
+  }
+  hitungItem();
+  renderKeranjang();
+  toast('Item ditambahkan ke transaksi');
+}
+
+function hapusItemKeranjang(idx){
+  keranjang.splice(idx,1);
+  renderKeranjang();
+}
+
+function renderKeranjang(){
+  const wrap=document.getElementById('keranjang-wrap');
+  const listEl=document.getElementById('keranjang-list');
+  if(!keranjang.length){wrap.style.display='none';hitungGrandTotal();return}
+  wrap.style.display='';
+  listEl.innerHTML=keranjang.map((item,i)=>{
+    const isGalon=item.tipe==='jual-galon';
+    const emoji=isGalon?'🫙':'🪣';
+    const rincian=isGalon
+      ?`${item.jumlah} unit × ${fmt(item.harga)}`
+      :`${item.jumlah} × ${fmt(item.harga)}/${item.per||19}L`;
+    const color=isGalon?'var(--blue)':'var(--teal)';
+    const bg=isGalon?'var(--blue-light)':'var(--teal-light)';
+    return `<div style="background:var(--card);border-radius:10px;padding:11px 12px;margin-bottom:7px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;border-left:3px solid ${color}">
+      <div style="font-size:22px">${emoji}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.produkNama}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px">${rincian}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:14px;font-weight:700;color:${color}">${fmt(item.subtotal)}</div>
+        <button onclick="hapusItemKeranjang(${i})" style="border:none;background:var(--red-light);color:var(--red);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer;margin-top:3px">✕ Hapus</button>
+      </div>
+    </div>`;
+  }).join('');
+  hitungGrandTotal();
+}
+
+function hitungGrandTotal(){
+  const subtotal=keranjang.reduce((a,item)=>a+item.subtotal,0);
+  const diskon=parseInt(document.getElementById('trx-diskon')?.value)||0;
+  const grand=Math.max(0,subtotal-diskon);
+  document.getElementById('grand-total').textContent=fmt(grand);
+  document.getElementById('grand-rincian').textContent=
+    keranjang.length+' item'+(diskon>0?' · diskon '+fmt(diskon):'');
+}
+
+function resetKeranjang(){
+  keranjang=[];
+  document.getElementById('trx-diskon').value=0;
+  document.getElementById('trx-catatan').value='';
+  renderKeranjang();
+  toast('Form dikosongkan');
+}
+
+function simpanTransaksiJual(){
+  if(!keranjang.length){toast('Tambahkan item terlebih dahulu','error');return}
+  const pelanggan=document.getElementById('trx-pelanggan').value||'Umum';
+  const bayar=document.getElementById('trx-bayar').value;
+  const catatan=document.getElementById('trx-catatan').value;
+  const diskon=parseInt(document.getElementById('trx-diskon').value)||0;
+  const status=bayar==='kredit'?'hutang':'lunas';
+  const totalAll=Math.max(0,keranjang.reduce((a,item)=>a+item.subtotal,0)-diskon);
+
+  // Save each item as its own transaction row
+  keranjang.forEach((item,i)=>{
+    // distribute diskon proportionally to first item only (simpler)
+    const itemDiskon=i===0?diskon:0;
+    const itemTotal=Math.max(0,item.subtotal-itemDiskon);
+    const trx={
+      id:genId(),tipe:item.tipe,produkId:item.produkId,produkNama:item.produkNama,
+      pelanggan,jumlah:item.jumlah,harga:item.harga,diskon:itemDiskon,
+      totalLiter:item.totalLiter||0,total:itemTotal,
+      bayar,status,catatan,tgl:today()
+    };
+    DB.transaksi.push(trx);
+    pushToSheets('addTransaksi',trx);
+  });
+
+  saveDB();
+  keranjang=[];
+  document.getElementById('trx-diskon').value=0;
+  document.getElementById('trx-catatan').value='';
+  renderKeranjang();
+  renderBeranda();
+  toast('✅ Transaksi Rp '+totalAll.toLocaleString('id-ID')+' tersimpan!');
+}
+
+// Legacy stubs (keep for backward compat with old modal calls)
+function openJualGalon(){ showPage('jual'); setItemType('galon'); }
+function openJualTandon(){ showPage('jual'); setItemType('tandon'); }
+function switchJualTab(tab){ setItemType(tab); }
+function simpanJualGalon(){ simpanTransaksiJual(); }
+function simpanJualTandon(){ simpanTransaksiJual(); }
+function hitungJualGalon(){ hitungItem(); }
+function hitungJualTandon(){ hitungItem(); }
+function onJualGalonProdukChange(){ onItemGalonChange(); }
+function onJualTandonProdukChange(){ onItemTandonChange(); }
+function onTerimaTipeChange(){
+  const tipe=document.getElementById('terima-tipe').value;
+  document.getElementById('terima-jumlah-label').textContent=tipe==='galon'?'Jumlah (Unit Galon)':'Volume Air (Liter)';
+  populateTerimaProdukSel();
+  hitungTerima();
+}
+
+// ═══════════════════════════════════════
+// TANDON HELPERS
+// ═══════════════════════════════════════
+function getTandonStok(){
+  let s=0; // base is 0, all stock comes from beli-tandon transactions
+  DB.transaksi.forEach(t=>{
+    if(t.tipe==='beli-tandon') s+=parseInt(t.jumlah)||0;
+    if(t.tipe==='jual-tandon') s-=parseInt(t.jumlah)||0;
+    if(t.tipe==='jual-tandon-koreksi') s-=parseInt(t.jumlah)||0;
+  });
+  return Math.max(0,s);
+}
+function getGalonStok(){
+  let s=0; // base 0 — stok comes from produk.stokAwal + beli-galon
+  DB.produkGalon.forEach(p=>{ s+=parseInt(p.stokAwal)||0; });
+  DB.transaksi.forEach(t=>{
+    if(t.tipe==='beli-galon') s+=parseInt(t.jumlah)||0;
+    if(t.tipe==='jual-galon') s-=parseInt(t.jumlah)||0;
+    if(t.tipe==='kurangi-galon') s-=parseInt(t.jumlah)||0;
+  });
+  return Math.max(0,s);
+}
+function getStokProdukGalon(produkId){
+  const p=DB.produkGalon.find(x=>x.id===produkId);
+  let s=parseInt(p?.stokAwal)||0;
+  DB.transaksi.forEach(t=>{
+    if(t.produkId===produkId){
+      if(t.tipe==='beli-galon') s+=parseInt(t.jumlah)||0;
+      if(t.tipe==='jual-galon') s-=parseInt(t.jumlah)||0;
+      if(t.tipe==='kurangi-galon') s-=parseInt(t.jumlah)||0;
+    }
+  });
+  return Math.max(0,s);
+}
+function updateTandonDisplay(){
+  const sisa=getTandonStok();
+  const kap=parseInt(DB.settings.tandonKapasitas)||1000;
+  const pct=Math.min(100,Math.round((sisa/kap)*100));
+  const el=document.getElementById('jt-sisa-display');
+  const bar=document.getElementById('jt-fill-bar');
+  if(el) el.textContent=sisa.toLocaleString('id-ID');
+  if(bar) bar.style.width=pct+'%';
+}
+function getTotalHutangPelanggan(nama){
+  let total=0;
+  DB.transaksi.forEach(t=>{
+    if(t.pelanggan===nama&&t.status==='hutang'&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'||t.tipe==='hutang')) total+=t.total;
+    if(t.pelanggan===nama&&t.tipe==='bayar') total-=t.total;
+  });
+  return Math.max(0,total);
+}
+
+// ═══════════════════════════════════════
+// BERANDA
+// ═══════════════════════════════════════
+function renderBeranda(){
+  const nm=DB.settings.namaDepot||'MAZU WATER';
+  document.getElementById('depot-name-header').textContent=nm;
+  document.getElementById('avatar-initials').textContent=nm.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const todayTrx=DB.transaksi.filter(t=>t.tgl===today()&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'));
+  document.getElementById('omzet-hari').textContent=fmt(todayTrx.reduce((a,t)=>a+t.total,0));
+  document.getElementById('trx-count-today').textContent=todayTrx.length+' transaksi hari ini';
+  document.getElementById('stok-galon').textContent=getGalonStok()+' unit';
+  const tandonSisa=getTandonStok();
+  const tandonKap=parseInt(DB.settings.tandonKapasitas)||1000;
+  document.getElementById('sisa-tandon').textContent=tandonSisa.toLocaleString('id-ID')+' L';
+  const totalHutang=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'||t.tipe==='hutang')).reduce((a,t)=>a+t.total,0);
+  const bayarHutang=DB.transaksi.filter(t=>t.tipe==='bayar').reduce((a,t)=>a+t.total,0);
+  document.getElementById('total-hutang-stat').textContent=fmt(Math.max(0,totalHutang-bayarHutang));
+  const bulan=today().slice(0,7);
+  document.getElementById('omzet-bulan').textContent=fmt(DB.transaksi.filter(t=>t.tgl.startsWith(bulan)&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon')).reduce((a,t)=>a+t.total,0));
+  renderBerandaChart();
+}
+
+function renderBerandaChart(){
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    days.push({
+      label:['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d.getDay()],
+      date:d.toISOString().slice(0,10),
+      isToday:i===0
+    });
+  }
+  const galonVals=days.map(d=>DB.transaksi.filter(t=>t.tgl===d.date&&t.tipe==='jual-galon').reduce((a,t)=>a+t.total,0));
+  const tandonVals=days.map(d=>DB.transaksi.filter(t=>t.tgl===d.date&&t.tipe==='jual-tandon').reduce((a,t)=>a+t.total,0));
+  const maxVal=Math.max(...galonVals,...tandonVals,1);
+  const chartEl=document.getElementById('beranda-chart');
+  const labelsEl=document.getElementById('beranda-chart-labels');
+  chartEl.innerHTML=days.map((d,i)=>{
+    const hG=Math.max(3,Math.round((galonVals[i]/maxVal)*72));
+    const hT=Math.max(3,Math.round((tandonVals[i]/maxVal)*72));
+    return `<div style="flex:1;display:flex;align-items:flex-end;gap:2px">
+      <div style="flex:1;height:${hG}px;background:${d.isToday?'var(--blue)':'var(--blue-light)'};border-radius:3px 3px 0 0"></div>
+      <div style="flex:1;height:${hT}px;background:${d.isToday?'var(--teal)':'var(--teal-light)'};border-radius:3px 3px 0 0"></div>
+    </div>`;
+  }).join('');
+  labelsEl.innerHTML=days.map(d=>`<div style="flex:1;text-align:center;font-size:9px;font-weight:${d.isToday?700:500};color:${d.isToday?'var(--blue)':'var(--hint)'}">${d.label}</div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// TRX HTML
+// ═══════════════════════════════════════
+function trxHTML(t){
+  const cfgs={
+    'jual-galon':{bg:'var(--blue-light)',c:'var(--blue)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M12 2C8 2 5 5.5 5 9c0 5 7 13 7 13s7-8 7-13c0-3.5-3-7-7-7z"/></svg>',sign:'+',bclass:'bg'},
+    'jual-tandon':{bg:'var(--teal-light)',c:'var(--teal)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18"/></svg>',sign:'+',bclass:'bt'},
+    'beli-galon':{bg:'var(--purple-light)',c:'var(--purple)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',sign:'-',bclass:'bp'},
+    'beli-tandon':{bg:'var(--cyan-light)',c:'var(--cyan)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',sign:'-',bclass:'bc'},
+    'hutang':{bg:'var(--red-light)',c:'var(--red)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6"/></svg>',sign:'-',bclass:'br'},
+    'bayar':{bg:'var(--green-light)',c:'var(--green)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>',sign:'+',bclass:'bg'},
+  };
+  const cfg=cfgs[t.tipe]||cfgs['jual-galon'];
+  const desc=t.tipe==='jual-galon'?`${t.jumlah} unit · ${t.produkNama||''}`
+    :t.tipe==='jual-tandon'?`${t.jumlah} liter · ${t.produkNama||''}`
+    :t.tipe==='beli-galon'||t.tipe==='beli-tandon'?`dari ${t.pelanggan}`
+    :t.catatan||t.tipe;
+  return `<div class="list-item">
+    <div class="li-icon" style="background:${cfg.bg};color:${cfg.c}">${cfg.icon}</div>
+    <div class="li-body">
+      <div class="li-name">${t.pelanggan||'Umum'}</div>
+      <div class="li-desc">${desc}</div>
+    </div>
+    <div class="li-right">
+      <div class="li-amt" style="color:${cfg.sign==='+'?'var(--green)':'var(--red)'}">${cfg.sign}${fmt(t.total)}</div>
+      <div class="li-date">${t.tgl}</div>
+      <span class="badge ${t.status==='lunas'?'bg':'br'}">${t.status==='lunas'?'Lunas':'Hutang'}</span>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// TRANSAKSI
+// ═══════════════════════════════════════
+function filterTrx(f,btn){
+  document.querySelectorAll('#trx-tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTrx(f);
+}
+function renderTrx(f){
+  let list=[...DB.transaksi].reverse();
+  if(f==='galon') list=list.filter(t=>t.tipe==='jual-galon');
+  if(f==='tandon') list=list.filter(t=>t.tipe==='jual-tandon');
+  if(f==='beli') list=list.filter(t=>t.tipe==='beli-galon'||t.tipe==='beli-tandon');
+  if(f==='hutang') list=list.filter(t=>t.tipe==='hutang'||t.tipe==='bayar'||t.status==='hutang');
+  document.getElementById('trx-list').innerHTML=list.length?list.map(trxHTML).join(''):'<div class="empty"><p>Tidak ada transaksi</p></div>';
+}
+
+// ═══════════════════════════════════════
+// PELANGGAN
+// ═══════════════════════════════════════
+function renderPelanggan(){
+  const q=(document.getElementById('search-pelanggan')?.value||'').toLowerCase();
+  const list=DB.pelanggan.filter(p=>p.nama.toLowerCase().includes(q)||(p.hp||'').includes(q));
+  let totalPiutang=0;
+  DB.pelanggan.forEach(p=>{totalPiutang+=getTotalHutangPelanggan(p.nama)});
+  document.getElementById('total-piutang').textContent=fmt(totalPiutang);
+  document.getElementById('pelanggan-aktif').textContent=DB.pelanggan.length;
+  document.getElementById('pelanggan-list').innerHTML=list.map(p=>{
+    const hutang=getTotalHutangPelanggan(p.nama);
+    return `<div class="list-item" style="align-items:center">
+      <div class="li-icon" style="background:var(--blue-light);color:var(--blue);cursor:pointer" onclick="showDetailPelanggan('${p.id}')">${p.nama.slice(0,2).toUpperCase()}</div>
+      <div class="li-body" style="cursor:pointer" onclick="showDetailPelanggan('${p.id}')">
+        <div class="li-name">${p.nama}</div>
+        <div class="li-desc">${p.hp||'-'} · Tandon ${(p.tandonKap||1000).toLocaleString('id-ID')} L</div>
+        ${hutang>0?`<div style="font-size:12px;font-weight:700;color:var(--red);margin-top:2px">${fmt(hutang)} piutang</div>`:'<span class="badge bg" style="margin-top:2px">Lunas</span>'}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;margin-left:6px">
+        <button onclick="editPelanggan('${p.id}')" style="border:none;background:var(--blue-light);color:var(--blue);border-radius:8px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️</button>
+        <button onclick="hapusPelanggan('${p.id}')" style="border:none;background:var(--red-light);color:var(--red);border-radius:8px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">🗑️</button>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty"><p>Belum ada pelanggan</p></div>';
+}
+function populatePelangganSelect(){
+  ['jg-pelanggan','jt-pelanggan','hutang-pelanggan','bayar-pelanggan'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    const opt=id==='jg-pelanggan'||id==='jt-pelanggan'?'<option value="">-- Umum --</option>':'';
+    el.innerHTML=opt+DB.pelanggan.map(p=>`<option value="${p.nama}">${p.nama}</option>`).join('');
+  });
+}
+function showDetailPelanggan(id){
+  const p=DB.pelanggan.find(x=>x.id===id);
+  if(!p) return;
+  const hutang=getTotalHutangPelanggan(p.nama);
+  const trxPlg=[...DB.transaksi].filter(t=>t.pelanggan===p.nama).reverse().slice(0,8);
+  document.getElementById('detail-pelanggan-content').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px">${p.nama.slice(0,2).toUpperCase()}</div>
+      <div><div style="font-size:17px;font-weight:700">${p.nama}</div><div style="font-size:12px;color:var(--muted)">${p.hp}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card" style="padding:11px"><div style="font-size:11px;color:var(--muted)">Hutang</div><div style="font-size:16px;font-weight:700;color:var(--red)">${fmt(hutang)}</div></div>
+      <div class="card" style="padding:11px"><div style="font-size:11px;color:var(--muted)">Tandon</div><div style="font-size:16px;font-weight:700">${(p.tandonKap||1000).toLocaleString('id-ID')} L</div></div>
+    </div>
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px">Riwayat Transaksi</div>
+    ${trxPlg.map(trxHTML).join('')||'<p style="color:var(--muted);font-size:12px">Belum ada transaksi</p>'}
+    <div style="display:flex;gap:7px;margin-top:12px">
+      <a href="tel:${p.hp}" style="flex:1;background:var(--blue-light);color:var(--blue);border-radius:var(--rs);padding:11px;text-align:center;text-decoration:none;font-weight:600;font-size:12px">📞 Telepon</a>
+      <a href="https://wa.me/62${p.hp.replace(/^0/,'')}?text=Halo ${encodeURIComponent(p.nama)}" target="_blank" style="flex:1;background:#e7ffef;color:#128C7E;border-radius:var(--rs);padding:11px;text-align:center;text-decoration:none;font-weight:600;font-size:12px">💬 WA</a>
+    </div>
+    <button class="btn btn-danger" style="margin-top:8px" onclick="hapusPelanggan('${p.id}')">🗑️ Hapus</button>
+  `;
+  openModal('modal-detail-pelanggan');
+}
+function resetAndOpenPelanggan(){
+  document.getElementById('plg-edit-id').value='';
+  document.getElementById('modal-plg-title').textContent='👤 Tambah Pelanggan';
+  ['plg-nama','plg-hp','plg-alamat','plg-catatan'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('plg-tandon').value=1000;
+  openModal('modal-tambah-pelanggan');
+}
+function editPelanggan(id){
+  const p=DB.pelanggan.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('plg-edit-id').value=p.id;
+  document.getElementById('plg-nama').value=p.nama;
+  document.getElementById('plg-hp').value=p.hp||'';
+  document.getElementById('plg-alamat').value=p.alamat||'';
+  document.getElementById('plg-tandon').value=p.tandonKap||1000;
+  document.getElementById('plg-catatan').value=p.catatan||'';
+  document.getElementById('modal-plg-title').textContent='✏️ Edit Pelanggan';
+  openModal('modal-tambah-pelanggan');
+}
+function hapusPelanggan(id){
+  const p=DB.pelanggan.find(x=>x.id===id);
+  if(!p) return;
+  if(!confirm('Hapus pelanggan "'+p.nama+'"? Data ini tidak bisa dikembalikan.')) return;
+  DB.pelanggan=DB.pelanggan.filter(x=>x.id!==id);
+  saveDB();
+  closeModal('modal-detail-pelanggan');
+  renderPelanggan();
+  toast('🗑️ Pelanggan dihapus');
+}
+
+// ═══════════════════════════════════════
+// PRODUK
+// ═══════════════════════════════════════
+let produkTab='galon';
+function filterProduk(tipe,btn){
+  produkTab=tipe;
+  document.querySelectorAll('#produk-tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('section-galon').style.display=tipe==='galon'?'':'none';
+  document.getElementById('section-tandon').style.display=tipe==='tandon'?'':'none';
+  renderProduk();
+}
+function renderProduk(){
+  // Galon list
+  const gl=DB.produkGalon||[];
+  document.getElementById('produk-galon-list').innerHTML=gl.length?gl.map(p=>produkGalonHTML(p)).join(''):'<div class="empty"><p>Belum ada produk galon. Tambah produk baru.</p></div>';
+  // Tandon list
+  const tl=DB.produkTandon||[];
+  document.getElementById('produk-tandon-list').innerHTML=tl.length?tl.map(p=>produkTandonHTML(p)).join(''):'<div class="empty"><p>Belum ada produk tandon. Tambah produk baru.</p></div>';
+  // Tandon status
+  updateTandonStatusDisplay();
+}
+function produkGalonHTML(p){
+  const stok=getStokProdukGalon(p.id);
+  const minStok=parseInt(p.minStok)||5;
+  const stokStatus=stok<=0?'br':stok<=minStok?'ba':'bg';
+  const stokLabel=stok<=0?'Habis':stok<=minStok?'Stok Rendah':'Tersedia';
+  const stokColor=stok<=0?'var(--red)':stok<=minStok?'var(--amber)':'var(--green)';
+  return `<div class="prod-card galon" style="margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700">${p.nama}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.deskripsi||''}${p.kode?' · '+p.kode:''}</div>
+        <div style="margin-top:7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:15px;font-weight:700;color:var(--blue)">${fmt(p.harga)}/unit</span>
+          ${p.hargaModal?`<span style="font-size:12px;color:var(--muted)">Modal: ${fmt(p.hargaModal)}</span>`:''}
+          ${p.hargaModal?`<span style="font-size:12px;font-weight:600;color:var(--green)">+${fmt(p.harga-p.hargaModal)}</span>`:''}
+          <span class="badge ${p.status==='aktif'?'bg':'ba'}">${p.status==='aktif'?'Aktif':'Nonaktif'}</span>
+        </div>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:6px">
+          <div style="background:var(--bg);border-radius:7px;padding:4px 10px;font-size:12px;font-weight:600">
+            📦 Stok: <span style="color:${stokColor}">${stok} unit</span>
+          </div>
+          <span class="badge ${stokStatus}" style="font-size:10px">${stokLabel}</span>
+        </div>
+        <!-- STOK INLINE CONTROLS -->
+        <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+          <button onclick="bukaStokModal('${p.id}','tambah')"
+            style="border:none;background:var(--green-light);color:var(--green);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px">
+            <span>➕</span><span style="font-size:11px">Tambah</span>
+          </button>
+          <button onclick="bukaStokModal('${p.id}','kurangi')"
+            style="border:none;background:var(--red-light);color:var(--red);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px">
+            <span>➖</span><span style="font-size:11px">Kurangi</span>
+          </button>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px">
+        <button onclick="editProduk('galon','${p.id}')" style="border:none;background:var(--blue-light);color:var(--blue);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;cursor:pointer">✏️</button>
+        <button onclick="hapusProduk('galon','${p.id}')" style="border:none;background:var(--red-light);color:var(--red);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;cursor:pointer">🗑️</button>
+      </div>
+    </div>
+  </div>`;
+}
+function produkTandonHTML(p){
+  const perLiter=parseInt(p.perLiter)||19;
+  const hargaTandon=parseInt(p.hargaTandon)||0;
+  const hargaPerL=perLiter>0?(hargaTandon/perLiter).toFixed(2):0;
+  return `<div class="prod-card tandon" style="margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700">${p.nama}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.deskripsi||''}${p.kode?' · '+p.kode:''}</div>
+        <div style="margin-top:7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:15px;font-weight:700;color:var(--teal)">${fmt(hargaTandon)} / ${perLiter}L</span>
+          <span class="badge ${p.status==='aktif'?'bt':'ba'}">${p.status==='aktif'?'Aktif':'Nonaktif'}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">≈ Rp ${Number(hargaPerL).toLocaleString('id-ID')} per liter</div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px">
+        <button onclick="editProduk('tandon','${p.id}')" style="border:none;background:var(--teal-light);color:var(--teal);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;cursor:pointer">✏️</button>
+        <button onclick="hapusProduk('tandon','${p.id}')" style="border:none;background:var(--red-light);color:var(--red);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;cursor:pointer">🗑️</button>
+      </div>
+    </div>
+  </div>`;
+}
+function previewHargaTandon(){
+  const per=parseInt(document.getElementById('produk-per-liter')?.value)||0;
+  const harga=parseInt(document.getElementById('produk-harga-tandon')?.value)||0;
+  const el=document.getElementById('tandon-harga-preview');
+  if(!el) return;
+  if(per>0&&harga>0){
+    el.textContent='Harga per '+per+' Liter = '+fmt(harga);
+    el.style.color='var(--teal)';
+    el.style.borderColor='var(--teal)';
+  } else {
+    el.textContent='— isi kolom di atas —';
+    el.style.color='var(--hint)';
+    el.style.borderColor='var(--border)';
+  }
+}
+function openModalProduk(tipe){
+  document.getElementById('produk-edit-id').value='';
+  document.getElementById('produk-edit-tipe').value=tipe;
+  document.getElementById('produk-nama').value='';
+  document.getElementById('produk-kode').value='';
+  document.getElementById('produk-harga').value='';
+  document.getElementById('produk-harga-modal').value='';
+  document.getElementById('produk-stok').value='0';
+  document.getElementById('produk-min-stok').value='5';
+  document.getElementById('produk-per-liter').value='19';
+  document.getElementById('produk-harga-tandon').value='';
+  document.getElementById('produk-deskripsi').value='';
+  document.getElementById('produk-status').value='aktif';
+  document.getElementById('modal-produk-title').textContent=tipe==='galon'?'🫙 Tambah Produk Galon':'🪣 Tambah Produk Tandon';
+  document.getElementById('fg-galon-fields').style.display=tipe==='galon'?'':'none';
+  document.getElementById('fg-tandon-fields').style.display=tipe==='tandon'?'':'none';
+  document.getElementById('produk-tipe-info').innerHTML=tipe==='galon'
+    ?'<div class="badge bb" style="font-size:11px;padding:4px 10px">🫙 Produk Galon Kemasan — dijual per unit</div>'
+    :'<div class="badge bt" style="font-size:11px;padding:4px 10px">🪣 Produk Air Tandon — harga per volume</div>';
+  previewHargaTandon();
+  openModal('modal-produk');
+}
+function editProduk(tipe,id){
+  const list=tipe==='galon'?DB.produkGalon:DB.produkTandon;
+  const p=list.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('produk-edit-id').value=p.id;
+  document.getElementById('produk-edit-tipe').value=tipe;
+  document.getElementById('produk-nama').value=p.nama;
+  document.getElementById('produk-kode').value=p.kode;
+  document.getElementById('produk-deskripsi').value=p.deskripsi||'';
+  document.getElementById('produk-status').value=p.status;
+  document.getElementById('modal-produk-title').textContent=tipe==='galon'?'✏️ Edit Produk Galon':'✏️ Edit Produk Tandon';
+  document.getElementById('fg-galon-fields').style.display=tipe==='galon'?'':'none';
+  document.getElementById('fg-tandon-fields').style.display=tipe==='tandon'?'':'none';
+  document.getElementById('produk-tipe-info').innerHTML=tipe==='galon'
+    ?'<div class="badge bb" style="font-size:11px;padding:4px 10px">🫙 Produk Galon Kemasan</div>'
+    :'<div class="badge bt" style="font-size:11px;padding:4px 10px">🪣 Produk Air Tandon</div>';
+  if(tipe==='galon'){
+    document.getElementById('produk-harga').value=p.harga||0;
+    document.getElementById('produk-harga-modal').value=p.hargaModal||0;
+    document.getElementById('produk-stok').value=p.stokAwal||0;
+    document.getElementById('produk-min-stok').value=p.minStok||5;
+  } else {
+    document.getElementById('produk-per-liter').value=p.perLiter||19;
+    document.getElementById('produk-harga-tandon').value=p.hargaTandon||0;
+    previewHargaTandon();
+  }
+  openModal('modal-produk');
+}
+function simpanProduk(){
+  const editId=document.getElementById('produk-edit-id').value;
+  const tipe=document.getElementById('produk-edit-tipe').value;
+  const nama=document.getElementById('produk-nama').value.trim();
+  const kode=document.getElementById('produk-kode').value.trim().toUpperCase();
+  const deskripsi=document.getElementById('produk-deskripsi').value.trim();
+  const status=document.getElementById('produk-status').value;
+  if(!nama||!kode){toast('Nama dan kode wajib diisi','error');return}
+  if(tipe==='galon'){
+    const harga=parseInt(document.getElementById('produk-harga').value)||0;
+    const hargaModal=parseInt(document.getElementById('produk-harga-modal').value)||0;
+    const stokAwal=parseInt(document.getElementById('produk-stok').value)||0;
+    const minStok=parseInt(document.getElementById('produk-min-stok').value)||5;
+    if(editId){
+      const idx=DB.produkGalon.findIndex(p=>p.id===editId);
+      if(idx>-1) DB.produkGalon[idx]={...DB.produkGalon[idx],nama,kode,harga,hargaModal,stokAwal,minStok,deskripsi,status};
+    } else {
+      DB.produkGalon.push({id:genId(),nama,kode,harga,hargaModal,stokAwal,minStok,deskripsi,status});
+    }
+  } else {
+    const perLiter=parseInt(document.getElementById('produk-per-liter').value)||19;
+    const hargaTandon=parseInt(document.getElementById('produk-harga-tandon').value)||0;
+    if(!hargaTandon){toast('Masukkan harga produk tandon','error');return}
+    if(editId){
+      const idx=DB.produkTandon.findIndex(p=>p.id===editId);
+      if(idx>-1) DB.produkTandon[idx]={...DB.produkTandon[idx],nama,kode,perLiter,hargaTandon,deskripsi,status};
+    } else {
+      DB.produkTandon.push({id:genId(),nama,kode,perLiter,hargaTandon,deskripsi,status});
+    }
+  }
+  saveDB(); closeModal('modal-produk'); renderProduk(); toast('✅ Produk disimpan!');
+}
+function hapusProduk(tipe,id){
+  if(!confirm('Hapus produk ini?')) return;
+  if(tipe==='galon') DB.produkGalon=DB.produkGalon.filter(p=>p.id!==id);
+  else DB.produkTandon=DB.produkTandon.filter(p=>p.id!==id);
+  saveDB(); renderProduk(); toast('🗑️ Produk dihapus');
+}
+// ── STOK GALON MODAL ──
+function bukaStokModal(produkId, op){
+  const p=DB.produkGalon.find(x=>x.id===produkId);
+  if(!p) return;
+  const stok=getStokProdukGalon(produkId);
+  document.getElementById('stok-produk-id').value=produkId;
+  document.getElementById('stok-op').value=op;
+  document.getElementById('stok-produk-nama').textContent=p.nama;
+  document.getElementById('stok-saat-ini').textContent=stok+' unit';
+  document.getElementById('stok-saat-ini').style.color=op==='tambah'?'var(--green)':'var(--red)';
+  document.getElementById('modal-stok-galon-title').textContent=op==='tambah'?'➕ Tambah Stok — '+p.nama:'➖ Kurangi Stok — '+p.nama;
+  document.getElementById('stok-jumlah-label').textContent=op==='tambah'?'Jumlah Tambah (unit)':'Jumlah Kurangi (unit)';
+  document.getElementById('stok-ket-label').textContent=op==='tambah'?'Supplier / Keterangan':'Alasan Pengurangan';
+  document.getElementById('stok-harga-wrap').style.display=op==='tambah'?'':'none';
+  document.getElementById('stok-jumlah').value=1;
+  document.getElementById('stok-harga').value='';
+  document.getElementById('stok-ket').value='';
+  document.getElementById('btn-simpan-stok').style.background=op==='tambah'?'var(--green)':'var(--red)';
+  openModal('modal-stok-galon');
+}
+function simpanStokGalonModal(){
+  const produkId=document.getElementById('stok-produk-id').value;
+  const op=document.getElementById('stok-op').value;
+  const jumlah=parseInt(document.getElementById('stok-jumlah').value)||0;
+  const harga=parseInt(document.getElementById('stok-harga').value)||0;
+  const ket=document.getElementById('stok-ket').value||'Manual';
+  const p=DB.produkGalon.find(x=>x.id===produkId);
+  if(!p||!jumlah){toast('Masukkan jumlah unit','error');return}
+  if(op==='kurangi'&&getStokProdukGalon(produkId)<jumlah){toast('Stok tidak cukup','error');return}
+  const trx={id:genId(),tipe:op==='tambah'?'beli-galon':'kurangi-galon',
+    produkId,produkNama:p.nama,pelanggan:ket,jumlah,harga,
+    total:jumlah*harga,bayar:'manual',status:'lunas',catatan:ket,tgl:today()};
+  DB.transaksi.push(trx);saveDB();
+  if(op==='tambah') pushToSheets('addTransaksi',trx);
+  closeModal('modal-stok-galon');
+  renderProduk();renderBeranda();
+  toast((op==='tambah'?'➕ +':'➖ -')+jumlah+' unit stok '+p.nama);
+}
+
+// ── TANDON SETTINGS ──
+function updateTandonStatusDisplay(){
+  const kap=parseInt(DB.settings.tandonKapasitas)||1000;
+  const stok=getTandonStok();
+  const pct=Math.min(100,Math.round((stok/kap)*100));
+  const inpKap=document.getElementById('tandon-kapasitas-default');
+  if(inpKap){ inpKap.value=kap; inpKap.disabled=true; inpKap.style.background='var(--bg)'; inpKap.style.color='var(--muted)'; }
+  const sisaEl=document.getElementById('tandon-sisa-display');
+  const pctEl=document.getElementById('tandon-pct');
+  const barEl=document.getElementById('tandon-fill-bar');
+  if(sisaEl) sisaEl.textContent=stok.toLocaleString('id-ID')+' L';
+  if(pctEl) pctEl.textContent=stok.toLocaleString('id-ID')+' / '+kap.toLocaleString('id-ID')+' L ('+pct+'%)';
+  if(barEl) barEl.style.width=pct+'%';
+  // Edit btn visible, simpan btn hidden
+  const editBtn=document.getElementById('btn-edit-kapasitas');
+  const simpanBtn=document.getElementById('btn-simpan-kapasitas');
+  if(editBtn) editBtn.style.display='';
+  if(simpanBtn) simpanBtn.style.display='none';
+}
+function editKapasitas(){
+  const inp=document.getElementById('tandon-kapasitas-default');
+  if(inp){ inp.disabled=false; inp.style.background=''; inp.style.color=''; inp.focus(); }
+  document.getElementById('btn-edit-kapasitas').style.display='none';
+  document.getElementById('btn-simpan-kapasitas').style.display='';
+}
+function simpanKapasitasDefault(){
+  const val=parseInt(document.getElementById('tandon-kapasitas-default').value)||1000;
+  DB.settings.tandonKapasitas=val;
+  saveDB();
+  updateTandonStatusDisplay();
+  toast('✅ Kapasitas default: '+val.toLocaleString('id-ID')+' L');
+}
+
+// koreksi
+function editKoreksi(){
+  const form=document.getElementById('koreksi-form');
+  if(form){ form.style.opacity='1'; form.style.pointerEvents=''; }
+  ['tandon-koreksi-op','tandon-koreksi-jml','tandon-koreksi-ket'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.disabled=false;
+  });
+  const btn=document.getElementById('btn-simpan-koreksi');
+  if(btn) btn.disabled=false;
+}
+function simpanKoreksiTandon(){
+  const op=document.getElementById('tandon-koreksi-op').value;
+  const jml=parseInt(document.getElementById('tandon-koreksi-jml').value)||0;
+  const ket=document.getElementById('tandon-koreksi-ket').value||'Koreksi manual';
+  if(!jml){toast('Masukkan jumlah liter','error');return}
+  const trx={id:genId(),tipe:op==='tambah'?'beli-tandon':'jual-tandon-koreksi',
+    produkNama:'Koreksi Stok Tandon',pelanggan:ket,jumlah:jml,harga:0,total:0,bayar:'manual',status:'lunas',catatan:ket,tgl:today()};
+  DB.transaksi.push(trx);saveDB();
+  // disable koreksi form
+  const form=document.getElementById('koreksi-form');
+  if(form){ form.style.opacity='0.4'; form.style.pointerEvents='none'; }
+  ['tandon-koreksi-op','tandon-koreksi-jml','tandon-koreksi-ket'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.disabled=true;
+  });
+  const btn=document.getElementById('btn-simpan-koreksi');
+  if(btn) btn.disabled=true;
+  updateTandonStatusDisplay();renderBeranda();
+  toast((op==='tambah'?'➕':'➖')+' Koreksi '+jml.toLocaleString('id-ID')+' L tersimpan');
+}
+
+// tambah air
+function bukaTambahAir(){
+  document.getElementById('tambah-air-form').style.display='';
+  document.getElementById('tambah-air-done').style.display='none';
+  document.getElementById('btn-tambah-air').style.display='none';
+}
+function tutupTambahAir(){
+  document.getElementById('tambah-air-form').style.display='none';
+  document.getElementById('btn-tambah-air').style.display='';
+}
+function hitungTambahAir(){
+  const liter=parseInt(document.getElementById('tambah-air-liter')?.value)||0;
+  const per1000=parseInt(document.getElementById('tambah-air-harga-per1000')?.value)||0;
+  const el=document.getElementById('tambah-air-total');
+  if(el) el.textContent=fmt(Math.round((liter/1000)*per1000));
+}
+function simpanTambahAir(){
+  const liter=parseInt(document.getElementById('tambah-air-liter').value)||0;
+  const per1000=parseInt(document.getElementById('tambah-air-harga-per1000').value)||0;
+  const supplier=document.getElementById('tambah-air-supplier').value||'Supplier';
+  const status=document.getElementById('tambah-air-status').value;
+  const catatan=document.getElementById('tambah-air-catatan').value;
+  if(!liter){toast('Masukkan volume air','error');return}
+  const total=Math.round((liter/1000)*per1000);
+  const trx={id:genId(),tipe:'beli-tandon',produkNama:'Pengisian Air Tandon',
+    pelanggan:supplier,jumlah:liter,harga:per1000>0?Math.round(per1000/1000):0,
+    total,bayar:status==='lunas'?'tunai':'kredit',status,catatan,tgl:today()};
+  DB.transaksi.push(trx);saveDB();
+  pushToSheets('addTransaksi',trx);
+  // disable form, show done message
+  document.getElementById('tambah-air-form').style.display='none';
+  document.getElementById('tambah-air-done').style.display='';
+  document.getElementById('btn-tambah-air').style.display='';
+  updateTandonStatusDisplay();renderBeranda();
+  toast('✅ Pengisian air '+liter.toLocaleString('id-ID')+' L tersimpan!');
+}
+
+// legacy stub
+function simpanStokGalon(){}
+
+// ═══════════════════════════════════════
+// HITUNG
+// ═══════════════════════════════════════
+function hitungTerima(){} // stub - kept for compat
+
+// ═══════════════════════════════════════
+// SIMPAN TRANSAKSI
+// ═══════════════════════════════════════
+function simpanTerima(){} // stub - no longer used
+
+// ── HUTANG PAGE ──
+function renderHutangPage(){
+  populatePelangganSelectJual();
+  switchHutangTab('daftar', document.querySelector('#hutang-tabs .tab'));
+}
+function switchHutangTab(tab, btn){
+  if(btn){document.querySelectorAll('#hutang-tabs .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');}
+  ['daftar','catat','bayar'].forEach(t=>{
+    const el=document.getElementById('htab-'+t);
+    if(el) el.style.display=t===tab?'':'none';
+  });
+  if(tab==='daftar') renderDaftarHutang();
+}
+function renderDaftarHutang(){
+  const hutangTrx=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'||t.tipe==='hutang'));
+  const total=hutangTrx.reduce((a,t)=>a+t.total,0);
+  const bayarTotal=DB.transaksi.filter(t=>t.tipe==='bayar').reduce((a,t)=>a+t.total,0);
+  document.getElementById('h-total-piutang').textContent=fmt(Math.max(0,total-bayarTotal));
+  document.getElementById('h-count-hutang').textContent=hutangTrx.length+' trx';
+  const el=document.getElementById('h-daftar-list');
+  if(!hutangTrx.length){el.innerHTML='<div class="empty"><p>Tidak ada hutang aktif 🎉</p></div>';return;}
+  // Group by pelanggan
+  const byPlg={};
+  hutangTrx.forEach(t=>{
+    if(!byPlg[t.pelanggan]) byPlg[t.pelanggan]=[];
+    byPlg[t.pelanggan].push(t);
+  });
+  el.innerHTML=Object.entries(byPlg).map(([nama,trxs])=>{
+    const tot=trxs.reduce((a,t)=>a+t.total,0);
+    const bayar=DB.transaksi.filter(t=>t.pelanggan===nama&&t.tipe==='bayar').reduce((a,t)=>a+t.total,0);
+    const sisa=Math.max(0,tot-bayar);
+    return `<div class="list-item">
+      <div class="li-icon" style="background:var(--red-light);color:var(--red)">${nama.slice(0,2).toUpperCase()}</div>
+      <div class="li-body"><div class="li-name">${nama}</div><div class="li-desc">${trxs.length} transaksi belum lunas</div></div>
+      <div class="li-right">
+        <div class="li-amt" style="color:var(--red)">${fmt(sisa)}</div>
+        <button onclick="quickBayar('${nama}',${sisa})" style="margin-top:4px;border:none;background:var(--green-light);color:var(--green);border-radius:7px;padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer">Bayar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function quickBayar(nama, sisa){
+  const bayarEl=document.getElementById('h-bayar-pelanggan');
+  if(bayarEl) bayarEl.value=nama;
+  switchHutangTab('bayar');
+  document.querySelectorAll('#hutang-tabs .tab')[2].classList.add('active');
+  document.querySelectorAll('#hutang-tabs .tab')[0].classList.remove('active');
+  loadHutangPelanggan2();
+}
+function simpanHutangBaru(){
+  const pelanggan=document.getElementById('h-catat-pelanggan').value;
+  const jumlah=parseInt(document.getElementById('h-catat-jumlah').value)||0;
+  const ket=document.getElementById('h-catat-ket').value;
+  if(!pelanggan||!jumlah){toast('Lengkapi data','error');return}
+  const trx={id:genId(),tipe:'hutang',pelanggan,jumlah:1,harga:jumlah,total:jumlah,bayar:'kredit',status:'hutang',catatan:ket,tgl:today()};
+  DB.transaksi.push(trx);
+  saveDB();
+  pushToSheets('addTransaksi', trx);
+  renderBeranda();
+  document.getElementById('h-catat-jumlah').value='';
+  document.getElementById('h-catat-ket').value='';
+  toast('💳 Hutang dicatat!');
+  switchHutangTab('daftar');
+  document.querySelectorAll('#hutang-tabs .tab')[0].classList.add('active');
+  document.querySelectorAll('#hutang-tabs .tab')[1].classList.remove('active');
+}
+function loadHutangPelanggan2(){
+  const nama=document.getElementById('h-bayar-pelanggan').value;
+  const hutang=getTotalHutangPelanggan(nama);
+  document.getElementById('h-bayar-info').innerHTML=hutang>0
+    ?`<div class="card" style="background:var(--red-light);padding:11px"><div style="font-size:12px;color:var(--red);font-weight:500">Total hutang ${nama}</div><div style="font-size:19px;font-weight:700;color:var(--red)">${fmt(hutang)}</div></div>`
+    :`<div class="card" style="background:var(--green-light);padding:11px;text-align:center;color:var(--green);font-weight:600;font-size:13px">✅ Tidak ada hutang</div>`;
+  document.getElementById('h-bayar-jumlah').value=hutang>0?hutang:'';
+}
+function simpanBayarHutang2(){
+  const pelanggan=document.getElementById('h-bayar-pelanggan').value;
+  const jumlah=parseInt(document.getElementById('h-bayar-jumlah').value)||0;
+  const metode=document.getElementById('h-bayar-metode').value;
+  if(!jumlah){toast('Masukkan jumlah','error');return}
+  DB.transaksi.push({id:genId(),tipe:'bayar',pelanggan,jumlah:1,harga:jumlah,total:jumlah,bayar:metode,status:'lunas',catatan:'Bayar hutang',tgl:today()});
+  let sisa=jumlah;
+  DB.transaksi.forEach(t=>{if(t.pelanggan===pelanggan&&t.status==='hutang'&&sisa>0){if(t.total<=sisa){t.status='lunas';sisa-=t.total;}}});
+  saveDB(); renderBeranda(); toast('✅ Pembayaran berhasil!');
+  document.getElementById('h-bayar-jumlah').value='';
+  switchHutangTab('daftar');
+  document.querySelectorAll('#hutang-tabs .tab')[0].classList.add('active');
+  document.querySelectorAll('#hutang-tabs .tab')[2].classList.remove('active');
+  renderDaftarHutang();
+}
+// legacy stubs (for old modal calls)
+function simpanHutang(){ simpanHutangBaru(); }
+function loadHutangPelanggan(){ loadHutangPelanggan2(); }
+function simpanBayarHutang(){ simpanBayarHutang2(); }
+function simpanPelanggan(){
+  const editId=document.getElementById('plg-edit-id').value;
+  const nama=document.getElementById('plg-nama').value.trim();
+  const hp=document.getElementById('plg-hp').value.trim();
+  const alamat=document.getElementById('plg-alamat').value.trim();
+  const tandonKap=parseInt(document.getElementById('plg-tandon').value)||1000;
+  const catatan=document.getElementById('plg-catatan').value.trim();
+  if(!nama){toast('Nama wajib diisi','error');return}
+  if(editId){
+    // Edit mode
+    const idx=DB.pelanggan.findIndex(p=>p.id===editId);
+    if(idx>-1){
+      DB.pelanggan[idx]={...DB.pelanggan[idx],nama,hp,alamat,tandonKap,catatan};
+      saveDB();
+      pushToSheets('addPelanggan',DB.pelanggan[idx]);
+      toast('✅ Data pelanggan diperbarui!');
+    }
+  } else {
+    // Tambah mode
+    const newPlg={id:genId(),nama,hp,alamat,tandonKap,catatan,tgl:today()};
+    DB.pelanggan.push(newPlg);
+    saveDB();
+    pushToSheets('addPelanggan',newPlg);
+    toast('👤 Pelanggan ditambahkan!');
+  }
+  closeModal('modal-tambah-pelanggan');
+  renderPelanggan();
+  // Reset form
+  document.getElementById('plg-edit-id').value='';
+  document.getElementById('modal-plg-title').textContent='👤 Tambah Pelanggan';
+  ['plg-nama','plg-hp','plg-alamat','plg-catatan'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('plg-tandon').value=1000;
+}
+
+// ═══════════════════════════════════════
+// RIWAYAT (Transaksi + Laporan)
+// ═══════════════════════════════════════
+let riwayatPage=0;
+let riwayatData=[];
+let riwayatFilter='semua';
+const RIW_PER_PAGE=10;
+
+// ═══════════════════════════════════════
+// NERACA MODAL
+// ═══════════════════════════════════════
+function renderNeraca(){
+  // ── GALON ──
+  const galonList = DB.produkGalon||[];
+  let totalModalGalon=0, totalStokUnit=0, totalPotensiGalon=0;
+
+  const galonRows = galonList.map(p=>{
+    const stok = getStokProdukGalon(p.id);
+    const hargaModal = parseInt(p.hargaModal)||0;
+    const hargaJual = parseInt(p.harga)||0;
+    const modalProduk = stok * hargaModal;
+    const potensiProduk = stok * hargaJual;
+    totalModalGalon += modalProduk;
+    totalStokUnit += stok;
+    totalPotensiGalon += potensiProduk;
+    const stokColor = stok<=0?'var(--red)':stok<=(parseInt(p.minStok)||5)?'var(--amber)':'var(--text)';
+    return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:12px;padding:10px 12px;border-bottom:1px solid var(--border);align-items:center">
+      <div>
+        <div style="font-weight:600">${p.nama}</div>
+        ${p.kode?`<div style="font-size:10px;color:var(--hint)">${p.kode}</div>`:''}
+      </div>
+      <div style="text-align:right;padding-right:10px;font-weight:600;color:${stokColor}">${stok} unit</div>
+      <div style="text-align:right;padding-right:10px;color:var(--muted)">${hargaModal>0?fmt(hargaModal):'—'}</div>
+      <div style="text-align:right;font-weight:700;color:var(--blue)">${hargaModal>0?fmt(modalProduk):'—'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('neraca-galon-rows').innerHTML = galonRows ||
+    '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Belum ada produk galon</div>';
+  document.getElementById('neraca-galon-total-unit').textContent = totalStokUnit+' unit';
+  document.getElementById('neraca-galon-total-modal').textContent = fmt(totalModalGalon);
+
+  // ── TANDON ──
+  // Hitung rata-rata harga beli air tandon dari transaksi beli-tandon
+  const beliTandon = DB.transaksi.filter(t=>t.tipe==='beli-tandon'&&t.harga>0);
+  const totalLiterBeli = beliTandon.reduce((a,t)=>a+(parseInt(t.jumlah)||0),0);
+  const totalBiayaBeli = beliTandon.reduce((a,t)=>a+(parseInt(t.total)||0),0);
+  const hargaBeliPerLiter = totalLiterBeli>0 ? totalBiayaBeli/totalLiterBeli : 0;
+  const stokTandon = getTandonStok();
+  const modalTandon = Math.round(stokTandon * hargaBeliPerLiter);
+
+  // Potensi jual tandon: gunakan produk tandon aktif rata-rata
+  const tandonList = DB.produkTandon||[];
+  let totalPotensiTandon = 0;
+  tandonList.filter(p=>p.status==='aktif').forEach(p=>{
+    const per = parseInt(p.perLiter)||19;
+    const hargaPer = parseInt(p.hargaTandon)||0;
+    const hargaPerL = per>0 ? hargaPer/per : 0;
+    totalPotensiTandon += stokTandon * hargaPerL;
+  });
+  if(tandonList.filter(p=>p.status==='aktif').length>1){
+    totalPotensiTandon = totalPotensiTandon / tandonList.filter(p=>p.status==='aktif').length;
+  }
+
+  const tandonRows = tandonList.map(p=>{
+    const per = parseInt(p.perLiter)||19;
+    const hargaPer = parseInt(p.hargaTandon)||0;
+    return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:12px;padding:10px 12px;border-bottom:1px solid var(--border);align-items:center">
+      <div>
+        <div style="font-weight:600">${p.nama}</div>
+        ${p.kode?`<div style="font-size:10px;color:var(--hint)">${p.kode}</div>`:''}
+      </div>
+      <div style="text-align:right;padding-right:10px;font-weight:600;color:var(--teal)">${stokTandon.toLocaleString('id-ID')} L</div>
+      <div style="text-align:right;padding-right:10px;color:var(--muted);font-size:11px">${fmt(hargaPer)}/${per}L</div>
+      <div style="text-align:right;font-weight:700;color:var(--teal)">${fmt(modalTandon)}</div>
+    </div>`;
+  }).join('');
+
+  // Jika tidak ada produk tandon, tampilkan stok air saja
+  const tandonDisplay = tandonRows || `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:12px;padding:10px 12px;align-items:center">
+    <div style="font-weight:600">Stok Air Tandon</div>
+    <div style="text-align:right;padding-right:10px;font-weight:600;color:var(--teal)">${stokTandon.toLocaleString('id-ID')} L</div>
+    <div style="text-align:right;padding-right:10px;color:var(--muted)">${hargaBeliPerLiter>0?'Rp '+hargaBeliPerLiter.toFixed(0)+'/L':'—'}</div>
+    <div style="text-align:right;font-weight:700;color:var(--teal)">${fmt(modalTandon)}</div>
+  </div>`;
+
+  document.getElementById('neraca-tandon-rows').innerHTML = tandonDisplay;
+  document.getElementById('neraca-tandon-total-liter').textContent = stokTandon.toLocaleString('id-ID')+' L';
+  document.getElementById('neraca-tandon-total-modal').textContent = fmt(modalTandon);
+
+  // ── TOTALS ──
+  const totalModal = totalModalGalon + modalTandon;
+  const totalPotensi = Math.round(totalPotensiGalon + totalPotensiTandon);
+  const totalLaba = totalPotensi - totalModal;
+
+  document.getElementById('neraca-total-modal').textContent = fmt(totalModal);
+  document.getElementById('neraca-summary-sub').textContent =
+    galonList.length+' produk galon · '+tandonList.length+' produk tandon';
+  document.getElementById('neraca-modal-galon').textContent = fmt(totalModalGalon);
+  document.getElementById('neraca-galon-unit').textContent = totalStokUnit+' unit stok';
+  document.getElementById('neraca-modal-tandon').textContent = fmt(modalTandon);
+  document.getElementById('neraca-tandon-liter').textContent = stokTandon.toLocaleString('id-ID')+' L stok';
+  document.getElementById('neraca-potensi-omzet').textContent = fmt(totalPotensi);
+  document.getElementById('neraca-potensi-laba').textContent = fmt(totalLaba);
+}
+
+function renderRiwayat(){
+  // Summary stats — bulan ini
+  const bulan=today().slice(0,7);
+  const trxBulan=DB.transaksi.filter(t=>t.tgl.startsWith(bulan));
+  const pendGalon=trxBulan.filter(t=>t.tipe==='jual-galon').reduce((a,t)=>a+t.total,0);
+  const pendTandon=trxBulan.filter(t=>t.tipe==='jual-tandon').reduce((a,t)=>a+t.total,0);
+  const pengeluaran=trxBulan.filter(t=>t.tipe==='beli-galon'||t.tipe==='beli-tandon').reduce((a,t)=>a+t.total,0);
+  const omzet=pendGalon+pendTandon;
+  document.getElementById('riwayat-laba').textContent=fmt(omzet-pengeluaran);
+  document.getElementById('riwayat-omzet').textContent=fmt(omzet);
+  document.getElementById('riwayat-pengeluaran').textContent=fmt(pengeluaran);
+  document.getElementById('riwayat-galon').textContent=fmt(pendGalon);
+  document.getElementById('riwayat-tandon').textContent=fmt(pendTandon);
+  const piutang=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'||t.tipe==='hutang')).reduce((a,t)=>a+t.total,0);
+  const bayar=DB.transaksi.filter(t=>t.tipe==='bayar').reduce((a,t)=>a+t.total,0);
+  document.getElementById('riwayat-piutang').textContent=fmt(Math.max(0,piutang-bayar));
+  const hutangSup=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='beli-galon'||t.tipe==='beli-tandon')).reduce((a,t)=>a+t.total,0);
+  document.getElementById('riwayat-hutang-sup').textContent=fmt(hutangSup);
+  filterRiwayat(riwayatFilter);
+}
+
+function filterRiwayat(f,btn){
+  riwayatFilter=f;
+  riwayatPage=0;
+  document.querySelectorAll('#riwayat-tabs .tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else {
+    const tabs=document.querySelectorAll('#riwayat-tabs .tab');
+    const map={semua:0,galon:1,tandon:2,beli:3,hutang:4};
+    if(tabs[map[f]]) tabs[map[f]].classList.add('active');
+  }
+  let list=[...DB.transaksi].reverse();
+  if(f==='galon') list=list.filter(t=>t.tipe==='jual-galon');
+  else if(f==='tandon') list=list.filter(t=>t.tipe==='jual-tandon');
+  else if(f==='beli') list=list.filter(t=>t.tipe==='beli-galon'||t.tipe==='beli-tandon');
+  else if(f==='hutang') list=list.filter(t=>t.tipe==='hutang'||t.tipe==='bayar'||t.status==='hutang');
+  riwayatData=list;
+  renderRiwayatPage();
+}
+
+function renderRiwayatPage(){
+  const total=riwayatData.length;
+  const totalPages=Math.max(1,Math.ceil(total/RIW_PER_PAGE));
+  riwayatPage=Math.max(0,Math.min(riwayatPage,totalPages-1));
+  const slice=riwayatData.slice(riwayatPage*RIW_PER_PAGE,(riwayatPage+1)*RIW_PER_PAGE);
+  document.getElementById('riwayat-list').innerHTML=slice.length
+    ? slice.map(trxHTML).join('')
+    : '<div class="empty"><p>Tidak ada transaksi</p></div>';
+  document.getElementById('riwayat-page-info').textContent=
+    total>0 ? `Hal ${riwayatPage+1}/${totalPages} · ${total} transaksi` : '';
+  const pg=document.getElementById('riwayat-pagination');
+  if(totalPages<=1){pg.innerHTML='';return;}
+  pg.innerHTML=`
+    <button onclick="riwayatPageGo(-1)" style="flex:1;border:1.5px solid var(--border);background:${riwayatPage===0?'var(--border)':'var(--card)'};color:${riwayatPage===0?'var(--hint)':'var(--blue)'};border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit"${riwayatPage===0?' disabled':''}>← Prev</button>
+    <button onclick="riwayatPageGo(1)" style="flex:1;border:1.5px solid var(--border);background:${riwayatPage>=totalPages-1?'var(--border)':'var(--card)'};color:${riwayatPage>=totalPages-1?'var(--hint)':'var(--blue)'};border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit"${riwayatPage>=totalPages-1?' disabled':''}>Next →</button>
+  `;
+}
+function riwayatPageGo(dir){
+  riwayatPage+=dir;
+  renderRiwayatPage();
+  document.getElementById('riwayat-list').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderBarChart(){
+  const days=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push({label:['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d.getDay()],date:d.toISOString().slice(0,10)});}
+  const vals=days.map(d=>DB.transaksi.filter(t=>t.tgl===d.date&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon')).reduce((a,t)=>a+t.total,0));
+  const maxVal=Math.max(...vals,1);
+  const el=document.getElementById('bar-chart');
+  if(!el) return;
+  el.innerHTML=days.map((d,i)=>{
+    const h=Math.max(6,Math.round((vals[i]/maxVal)*66));
+    const isToday=d.date===today();
+    return `<div class="bar-wrap"><div class="bar" style="height:${h}px;background:${isToday?'var(--blue)':'var(--blue-light)'}"></div><span class="bar-lbl" style="color:${isToday?'var(--blue)':'var(--hint)'};font-weight:${isToday?700:400}">${d.label}</span></div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════
+function exportToCSV(){
+  const rows=[['ID','Tanggal','Tipe','Produk','Pelanggan','Jumlah','Harga','Total','Bayar','Status','Catatan']];
+  DB.transaksi.forEach(t=>rows.push([t.id,t.tgl,t.tipe,t.produkNama||'',t.pelanggan,t.jumlah,t.harga,t.total,t.bayar,t.status,t.catatan||'']));
+  const blob=new Blob(['\ufeff'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`z-tronik-${today()}.csv`;a.click();
+  toast('📥 CSV diunduh!');
+}
+function loadSettings(){
+  document.getElementById('cfg-nama').value=DB.settings.namaDepot||'';
+  document.getElementById('cfg-pemilik').value=DB.settings.pemilik||'';
+  document.getElementById('cfg-alamat').value=DB.settings.alamat||'';
+  document.getElementById('cfg-username').value=DB.settings.username||'ztronik';
+  document.getElementById('cfg-password').value='';
+  document.getElementById('cfg-password2').value='';
+}
+function saveSettings(){
+  DB.settings.namaDepot=document.getElementById('cfg-nama').value;
+  DB.settings.pemilik=document.getElementById('cfg-pemilik').value;
+  DB.settings.alamat=document.getElementById('cfg-alamat').value;
+  const newUser=document.getElementById('cfg-username').value.trim();
+  const newPass=document.getElementById('cfg-password').value;
+  const confPass=document.getElementById('cfg-password2').value;
+  if(newUser) DB.settings.username=newUser;
+  if(newPass||confPass){
+    if(newPass!==confPass){toast('Password tidak cocok','error');return}
+    if(newPass.length<4){toast('Password minimal 4 karakter','error');return}
+    DB.settings.password=newPass;
+  }
+  saveDB(); toast('⚙️ Pengaturan disimpan!');
+  document.getElementById('cfg-password').value='';
+  document.getElementById('cfg-password2').value='';
+}
+function resetData(){
+  if(!confirm('Reset semua data transaksi?')) return;
+  DB.transaksi=[]; DB.pelanggan=[];
+  saveDB(); renderBeranda(); toast('🗑️ Data direset');
+}
+
+// ═══════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+function toast(msg,type='success'){
+  const el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText=`position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${type==='error'?'#ef4444':'#1e293b'};color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2);animation:fadeUp .2s ease`;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='.3s';setTimeout(()=>el.remove(),300)},2500);
+}
+const _s=document.createElement('style');
+_s.textContent='@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+document.head.appendChild(_s);
+
+// ═══════════════════════════════════════
+// LOGIN / LOGOUT / SESSION
+// ═══════════════════════════════════════
+function togglePassVisibility(){
+  const inp=document.getElementById('login-pass');
+  const btn=document.getElementById('btn-pass-toggle');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁️';}
+}
+// ── Custom confirm modal ──
+let _confirmCallback=null;
+function showConfirm(icon,title,sub,yesTxt,cb){
+  document.getElementById('confirm-icon').textContent=icon;
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-sub').textContent=sub;
+  document.getElementById('confirm-yes-btn').textContent=yesTxt;
+  _confirmCallback=cb;
+  document.getElementById('custom-confirm').style.display='flex';
+}
+function confirmYes(){
+  closeConfirm();
+  if(_confirmCallback) _confirmCallback();
+}
+function closeConfirm(){
+  document.getElementById('custom-confirm').style.display='none';
+  _confirmCallback=null;
+}
+
+function doLogin(){
+  const user=document.getElementById('login-user').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const savedUser=DB.settings.username||'ztronik';
+  const savedPass=DB.settings.password||'ztronik13';
+  if(user===savedUser&&pass===savedPass){
+    // Show loading overlay
+    const loading=document.getElementById('login-loading');
+    loading.style.display='flex';
+    document.getElementById('login-loading-txt').textContent='Memverifikasi...';
+    setTimeout(()=>{
+      document.getElementById('login-loading-txt').textContent='Berhasil masuk! ✅';
+      setTimeout(()=>{
+        loading.style.display='none';
+        sessionStorage.setItem('mazu_logged','1');
+        document.getElementById('login-screen').style.display='none';
+        document.getElementById('login-err').style.display='none';
+        renderBeranda();
+        document.querySelectorAll('.nav-links .nav-btn').forEach(btn=>{
+          if((btn.getAttribute('onclick')||'').includes("showPage('beranda')")) btn.classList.add('active');
+        });
+      },600);
+    },1400);
+  } else {
+    const err=document.getElementById('login-err');
+    err.style.display='block';
+    document.getElementById('login-pass').value='';
+    document.getElementById('login-pass').focus();
+    setTimeout(()=>err.style.display='none',3000);
+  }
+}
+function doLogout(){
+  showConfirm('🚪','Yakin ingin logout?','Sesi Anda akan diakhiri dan perlu login kembali.','✅ Ya, Logout',()=>{
+    sessionStorage.removeItem('mazu_logged');
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('login-user').value='';
+    document.getElementById('login-pass').value='';
+    // reset pass toggle
+    document.getElementById('login-pass').type='password';
+    document.getElementById('btn-pass-toggle').textContent='👁️';
+    document.getElementById('login-user').focus();
+  });
+}
+
+// ── Init: cek session ──
+(function(){
+  if(sessionStorage.getItem('mazu_logged')==='1'){
+    document.getElementById('login-screen').style.display='none';
+    renderBeranda();
+    document.querySelectorAll('.nav-links .nav-btn').forEach(btn=>{
+      if((btn.getAttribute('onclick')||'').includes("showPage('beranda')")) btn.classList.add('active');
+    });
+  } else {
+    document.getElementById('login-user').focus();
+  }
+})();
+</script>
+</body>
+</html>
