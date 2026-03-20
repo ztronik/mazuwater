@@ -203,6 +203,69 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .confirm-yes:active{opacity:.85}
 .confirm-no{border:2px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--card);color:var(--muted);transition:.15s}
 .confirm-no:active{background:var(--bg)}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:480px){
+  /* Sidebar lebih kecil */
+  .nav{width:70px}
+  .nav-logo{padding:10px 4px 8px}
+  .nav-logo-text{font-size:9px;letter-spacing:.8px}
+  .nav-logo-sub{font-size:7px}
+  .nav-links{padding:0 4px;gap:1px}
+  .nav-btn{padding:8px 4px}
+  .nav-btn span{font-size:10px}
+  .content-wrap{margin-left:70px}
+
+  /* Header & layout */
+  .header{padding:10px 10px 8px}
+  .header h2{font-size:15px}
+  .main{padding:0 10px 24px}
+
+  /* Hero — diperkecil */
+  .hero{padding:12px}
+  .hero-val{font-size:20px}
+  .hero-label{font-size:11px}
+  .hero-sub{font-size:10px}
+
+  /* Stat cards */
+  .stat-card{padding:9px}
+  .stat-num{font-size:15px}
+  .stat-label{font-size:10px}
+  .grid2{gap:7px}
+
+  /* Kartu & list */
+  .card{padding:10px;border-radius:10px}
+  .list-item{padding:9px 10px;gap:8px}
+  .li-icon{width:32px;height:32px;font-size:11px}
+  .li-icon svg{width:15px;height:15px}
+  .li-name{font-size:12px}
+  .li-desc{font-size:10px}
+  .li-amt{font-size:12px}
+
+  /* Grand total preview di Penjualan */
+  #grand-total{font-size:18px !important}
+
+  /* Produk card */
+  .prod-card{padding:10px}
+
+  /* Form */
+  .fc{font-size:13px;padding:9px 10px}
+  .btn{padding:10px 12px;font-size:13px}
+
+  /* QA grid */
+  .qa-grid{grid-template-columns:repeat(4,1fr);gap:5px}
+  .qa-btn{padding:8px 2px}
+  .qa-icon{width:28px;height:28px}
+  .qa-icon svg{width:14px;height:14px}
+  .qa-lbl{font-size:8.5px}
+
+  /* Badge & tabs */
+  .tab{padding:5px 10px;font-size:11px}
+  .badge{font-size:9px;padding:2px 7px}
+
+  /* Sec title */
+  .sec{font-size:12px}
+}
 </style>
 </head>
 <body>
