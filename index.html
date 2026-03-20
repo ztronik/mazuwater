@@ -204,27 +204,33 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .confirm-no{border:2px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--card);color:var(--muted);transition:.15s}
 .confirm-no:active{background:var(--bg)}
 
-/* ── HAMBURGER BUTTON ── */
-.nav-toggle{display:none;align-items:center;justify-content:center;width:36px;height:36px;border:none;background:rgba(255,255,255,.1);border-radius:8px;cursor:pointer;flex-shrink:0;transition:.15s}
-.nav-toggle:active{background:rgba(255,255,255,.2)}
-.nav-toggle svg{width:18px;height:18px;stroke:#fff;stroke-width:2;fill:none}
-
-/* ── NAV OVERLAY (mobile backdrop) ── */
-.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;opacity:0;transition:.25s;pointer-events:none}
-.nav-overlay.open{opacity:1;pointer-events:all}
+/* ── MOBILE TOP NAV ── */
+.mob-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);box-shadow:0 2px 12px rgba(0,0,0,.25);padding:4px 6px}
+.mob-nav-row{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
+.mob-nav-btn{border:none;background:transparent;cursor:pointer;border-radius:8px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.12s;width:100%}
+.mob-nav-btn:active{transform:scale(.93)}
+.mob-nav-btn .mn-ic{font-size:17px;line-height:1}
+.mob-nav-btn .mn-lb{font-size:9px;font-weight:700;color:rgba(255,255,255,.5);line-height:1;white-space:nowrap}
+.mob-nav-btn[data-c=blue].active{background:rgba(59,130,246,.3)} .mob-nav-btn[data-c=blue].active .mn-lb{color:#bfdbfe}
+.mob-nav-btn[data-c=green].active{background:rgba(16,185,129,.26)} .mob-nav-btn[data-c=green].active .mn-lb{color:#a7f3d0}
+.mob-nav-btn[data-c=red].active{background:rgba(248,113,113,.22)} .mob-nav-btn[data-c=red].active .mn-lb{color:#fecaca}
+.mob-nav-btn[data-c=cyan].active{background:rgba(34,211,238,.22)} .mob-nav-btn[data-c=cyan].active .mn-lb{color:#a5f3fc}
+.mob-nav-btn[data-c=amber].active{background:rgba(251,191,36,.22)} .mob-nav-btn[data-c=amber].active .mn-lb{color:#fef08a}
+.mob-nav-btn[data-c=orange].active{background:rgba(251,146,60,.22)} .mob-nav-btn[data-c=orange].active .mn-lb{color:#fed7aa}
+.mob-nav-btn[data-c=purple].active{background:rgba(167,139,250,.26)} .mob-nav-btn[data-c=purple].active .mn-lb{color:#ddd6fe}
+.mob-nav-btn[data-c=slate].active{background:rgba(148,163,184,.18)} .mob-nav-btn[data-c=slate].active .mn-lb{color:#f1f5f9}
+.mob-nav-divider{height:1px;background:rgba(255,255,255,.08);margin:3px 0}
 
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:600px){
-  /* Sidebar: hidden by default, slides in */
-  .nav{transform:translateX(-110px);transition:transform .25s cubic-bezier(.32,1,.5,1)}
-  .nav.open{transform:translateX(0)}
-  .nav-overlay{display:block}
+  /* Sembunyikan sidebar */
+  .nav{display:none}
 
-  /* Content takes full width */
-  .content-wrap{margin-left:0}
+  /* Tampilkan top nav */
+  .mob-nav{display:block}
 
-  /* Show hamburger button */
-  .nav-toggle{display:inline-flex}
+  /* Content full width + beri ruang untuk top nav (~82px) */
+  .content-wrap{margin-left:0;padding-top:82px}
 
   /* Header & layout */
   .header{padding:10px 12px 8px}
@@ -280,11 +286,49 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 </head>
 <body>
 
-<!-- NAV OVERLAY (mobile) -->
-<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+<!-- ===== MOBILE TOP NAV ===== -->
+<nav class="mob-nav" id="mob-nav">
+  <!-- Baris 1: Beranda, Penjualan, Hutang, Riwayat, Neraca -->
+  <div class="mob-nav-row">
+    <button class="mob-nav-btn" data-c="blue" data-page="beranda" onclick="showPage('beranda')">
+      <span class="mn-ic">🏠</span><span class="mn-lb">Beranda</span>
+    </button>
+    <button class="mob-nav-btn" data-c="green" data-page="jual" onclick="showPage('jual')">
+      <span class="mn-ic">🛒</span><span class="mn-lb">Penjualan</span>
+    </button>
+    <button class="mob-nav-btn" data-c="red" data-page="hutang" onclick="showPage('hutang')">
+      <span class="mn-ic">💳</span><span class="mn-lb">Hutang</span>
+    </button>
+    <button class="mob-nav-btn" data-c="cyan" data-page="riwayat" onclick="showPage('riwayat')">
+      <span class="mn-ic">📊</span><span class="mn-lb">Riwayat</span>
+    </button>
+    <button class="mob-nav-btn" data-c="green" data-page="neraca" onclick="showPage('neraca')">
+      <span class="mn-ic">🏦</span><span class="mn-lb">Neraca</span>
+    </button>
+  </div>
+  <div class="mob-nav-divider"></div>
+  <!-- Baris 2: Pelanggan, Produk, FAQ, Setelan, Logout -->
+  <div class="mob-nav-row">
+    <button class="mob-nav-btn" data-c="orange" data-page="pelanggan" onclick="showPage('pelanggan')">
+      <span class="mn-ic">👥</span><span class="mn-lb">Pelanggan</span>
+    </button>
+    <button class="mob-nav-btn" data-c="amber" data-page="produk" onclick="showPage('produk')">
+      <span class="mn-ic">📦</span><span class="mn-lb">Produk</span>
+    </button>
+    <button class="mob-nav-btn" data-c="purple" data-page="faq" onclick="showPage('faq')">
+      <span class="mn-ic">❓</span><span class="mn-lb">FAQ</span>
+    </button>
+    <button class="mob-nav-btn" data-c="slate" data-page="pengaturan" onclick="showPage('pengaturan')">
+      <span class="mn-ic">⚙️</span><span class="mn-lb">Setelan</span>
+    </button>
+    <button class="mob-nav-btn" data-c="red" onclick="doLogout()">
+      <span class="mn-ic">🚪</span><span class="mn-lb">Logout</span>
+    </button>
+  </div>
+</nav>
 
 <!-- ===== SIDEBAR ===== -->
-<nav class="nav" id="main-nav">
+<nav class="nav">
   <div class="nav-logo">
     <div class="nav-logo-text">MAZU WATER</div>
     <div class="nav-logo-sub">DEPOT AIR</div>
@@ -387,7 +431,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <div id="page-beranda" class="page active">
   <div class="header" style="padding-bottom:12px">
     <div class="header-row">
-      <button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      
       <div>
         <div style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:4px">Selamat datang 👋</div>
         <h2 id="depot-name-header" style="line-height:1.2">MAZU WATER</h2>
@@ -431,7 +475,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== JUAL ===== -->
 <div id="page-jual" class="page">
   <div class="header">
-    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Penjualan</h2></div>
+    <div class="header-row"><h2>Penjualan</h2></div>
     <div class="header-sub">Galon & tandon dalam satu transaksi</div>
   </div>
   <div class="main">
@@ -575,7 +619,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== HUTANG ===== -->
 <div id="page-hutang" class="page">
   <div class="header">
-    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Hutang & Piutang</h2></div>
+    <div class="header-row"><h2>Hutang & Piutang</h2></div>
     <div class="header-sub">Kelola tagihan pelanggan</div>
   </div>
   <div class="main">
@@ -623,7 +667,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== RIWAYAT ===== -->
 <div id="page-riwayat" class="page">
   <div class="header">
-    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Riwayat & Laporan</h2>
+    <div class="header-row"><h2>Riwayat & Laporan</h2>
       <button class="btn btn-secondary btn-sm" onclick="exportToCSV()">📥 CSV</button>
     </div>
     <div class="header-sub">Transaksi & ringkasan keuangan</div>
@@ -662,7 +706,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== PELANGGAN ===== -->
 <div id="page-pelanggan" class="page">
   <div class="header">
-    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Pelanggan</h2>
+    <div class="header-row"><h2>Pelanggan</h2>
       <button class="btn btn-primary btn-sm" onclick="resetAndOpenPelanggan()">+ Tambah</button>
     </div>
     <div class="header-sub">Daftar & hutang pelanggan</div>
@@ -680,7 +724,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== PRODUK ===== -->
 <div id="page-produk" class="page">
   <div class="header">
-    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Produk & Stok</h2></div>
+    <div class="header-row"><h2>Produk & Stok</h2></div>
     <div class="header-sub">Galon kemasan & air tandon</div>
   </div>
   <div class="main">
@@ -824,7 +868,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <!-- ===== NERACA MODAL ===== -->
 <div id="page-neraca" class="page">
   <div class="header">
-    <div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>Neraca Modal</h2></div>
+    <div class="header-row"><h2>Neraca Modal</h2></div>
     <div class="header-sub">Total modal produk galon & tandon</div>
   </div>
   <div class="main">
@@ -906,7 +950,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <!-- ===== FAQ ===== -->
 <div id="page-faq" class="page">
-  <div class="header"><div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>❓ FAQ</h2></div><div class="header-sub">Pertanyaan yang sering ditanyakan</div></div>
+  <div class="header"><div class="header-row"><h2>❓ FAQ</h2></div><div class="header-sub">Pertanyaan yang sering ditanyakan</div></div>
   <div class="main">
 
     <div class="card" style="margin-bottom:10px">
@@ -975,7 +1019,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 <!-- ===== PENGATURAN ===== -->
 <div id="page-pengaturan" class="page">
-  <div class="header"><div class="header-row"><button class="nav-toggle" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>⚙️ Setelan</h2></div><div class="header-sub">Profil depot & keamanan akun</div></div>
+  <div class="header"><div class="header-row"><h2>⚙️ Setelan</h2></div><div class="header-sub">Profil depot & keamanan akun</div></div>
   <div class="main">
     <div class="card">
       <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">PROFIL DEPOT</div>
@@ -1354,6 +1398,10 @@ function showPage(p){
   document.querySelectorAll('.nav-links .nav-btn').forEach(btn=>{
     const oc=btn.getAttribute('onclick')||'';
     if(oc.includes("showPage('"+p+"')")) btn.classList.add('active');
+  });
+  // sync mobile top nav active state
+  document.querySelectorAll('.mob-nav-btn[data-page]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.page===p);
   });
   if(p==='beranda') renderBeranda();
   if(p==='jual') initJualPage();
@@ -2627,35 +2675,12 @@ function doLogout(){
     document.querySelectorAll('.nav-links .nav-btn').forEach(btn=>{
       if((btn.getAttribute('onclick')||'').includes("showPage('beranda')")) btn.classList.add('active');
     });
+    document.querySelectorAll('.mob-nav-btn[data-page]').forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.page==='beranda');
+    });
   } else {
     document.getElementById('login-user').focus();
   }
-})();
-
-// ═══════════════════════════════════════
-// MOBILE NAV TOGGLE
-// ═══════════════════════════════════════
-function toggleNav(){
-  const nav=document.getElementById('main-nav');
-  const overlay=document.getElementById('nav-overlay');
-  const isOpen=nav.classList.contains('open');
-  if(isOpen){ closeNav(); } else {
-    nav.classList.add('open');
-    overlay.classList.add('open');
-  }
-}
-function closeNav(){
-  document.getElementById('main-nav').classList.remove('open');
-  document.getElementById('nav-overlay').classList.remove('open');
-}
-// Close nav when a menu item is clicked on mobile
-(function(){
-  document.querySelectorAll('.nav-btn').forEach(btn=>{
-    const orig=btn.getAttribute('onclick')||'';
-    btn.addEventListener('click',function(){
-      if(window.innerWidth<=600) closeNav();
-    });
-  });
 })();
 </script>
 </body>
