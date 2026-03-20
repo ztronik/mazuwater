@@ -205,27 +205,26 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .confirm-no:active{background:var(--bg)}
 
 /* ── MOBILE TOP NAV ── */
-.mob-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:100;background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08)}
-.mob-nav-row{display:flex;border-bottom:1px solid rgba(255,255,255,.07)}
-.mob-nav-row:last-child{border-bottom:none}
-.mob-nav-btn{flex:1;border:none;background:transparent;cursor:pointer;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;transition:.15s;border-bottom:2px solid transparent}
-.mob-nav-btn:active{background:rgba(255,255,255,.06)}
-.mob-nav-btn .mn-ic{font-size:16px;line-height:1}
-.mob-nav-btn .mn-lb{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.4);line-height:1;white-space:nowrap;transition:.15s}
-.mob-nav-btn[data-c=blue].active{border-bottom-color:#3b82f6} .mob-nav-btn[data-c=blue].active .mn-lb{color:#93c5fd}
-.mob-nav-btn[data-c=green].active{border-bottom-color:#10b981} .mob-nav-btn[data-c=green].active .mn-lb{color:#6ee7b7}
-.mob-nav-btn[data-c=red].active{border-bottom-color:#ef4444} .mob-nav-btn[data-c=red].active .mn-lb{color:#fca5a5}
-.mob-nav-btn[data-c=cyan].active{border-bottom-color:#06b6d4} .mob-nav-btn[data-c=cyan].active .mn-lb{color:#67e8f9}
-.mob-nav-btn[data-c=amber].active{border-bottom-color:#f59e0b} .mob-nav-btn[data-c=amber].active .mn-lb{color:#fcd34d}
-.mob-nav-btn[data-c=orange].active{border-bottom-color:#f97316} .mob-nav-btn[data-c=orange].active .mn-lb{color:#fdba74}
-.mob-nav-btn[data-c=purple].active{border-bottom-color:#7c3aed} .mob-nav-btn[data-c=purple].active .mn-lb{color:#c4b5fd}
-.mob-nav-btn[data-c=slate].active{border-bottom-color:#94a3b8} .mob-nav-btn[data-c=slate].active .mn-lb{color:#e2e8f0}
+.mob-nav{display:none;background:var(--bg);padding:10px 12px 0}
+.mob-nav-row{display:flex;gap:4px;margin-bottom:4px}
+.mob-nav-btn{flex:1;border:none;background:var(--card);cursor:pointer;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.15s;border-radius:10px;border-bottom:2px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.mob-nav-btn:active{opacity:.75}
+.mob-nav-btn .mn-ic{font-size:15px;line-height:1}
+.mob-nav-btn .mn-lb{font-size:9px;font-weight:600;color:var(--hint);line-height:1;white-space:nowrap;transition:.15s}
+.mob-nav-btn[data-c=blue].active{background:var(--blue-light);border-bottom-color:var(--blue)} .mob-nav-btn[data-c=blue].active .mn-lb{color:var(--blue)}
+.mob-nav-btn[data-c=green].active{background:var(--green-light);border-bottom-color:var(--green)} .mob-nav-btn[data-c=green].active .mn-lb{color:var(--green)}
+.mob-nav-btn[data-c=red].active{background:var(--red-light);border-bottom-color:var(--red)} .mob-nav-btn[data-c=red].active .mn-lb{color:var(--red)}
+.mob-nav-btn[data-c=cyan].active{background:var(--cyan-light);border-bottom-color:var(--cyan)} .mob-nav-btn[data-c=cyan].active .mn-lb{color:var(--cyan)}
+.mob-nav-btn[data-c=amber].active{background:var(--amber-light);border-bottom-color:var(--amber)} .mob-nav-btn[data-c=amber].active .mn-lb{color:var(--amber)}
+.mob-nav-btn[data-c=orange].active{background:var(--orange-light);border-bottom-color:var(--orange)} .mob-nav-btn[data-c=orange].active .mn-lb{color:var(--orange)}
+.mob-nav-btn[data-c=purple].active{background:var(--purple-light);border-bottom-color:var(--purple)} .mob-nav-btn[data-c=purple].active .mn-lb{color:var(--purple)}
+.mob-nav-btn[data-c=slate].active{background:var(--blue-light);border-bottom-color:var(--muted)} .mob-nav-btn[data-c=slate].active .mn-lb{color:var(--muted)}
 
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:600px){
   .nav{display:none}
   .mob-nav{display:block}
-  .content-wrap{margin-left:0;padding-top:100px}
+  .content-wrap{margin-left:0}
   .header{padding:10px 12px 8px}
   .header h2{font-size:16px}
   .main{padding:0 12px 24px}
@@ -260,44 +259,6 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 </style>
 </head>
 <body>
-
-<!-- ===== MOBILE TOP NAV ===== -->
-<nav class="mob-nav" id="mob-nav">
-  <div class="mob-nav-row">
-    <button class="mob-nav-btn" data-c="blue" data-page="beranda" onclick="showPage('beranda')">
-      <span class="mn-ic">🏠</span><span class="mn-lb">Beranda</span>
-    </button>
-    <button class="mob-nav-btn" data-c="green" data-page="jual" onclick="showPage('jual')">
-      <span class="mn-ic">🛒</span><span class="mn-lb">Penjualan</span>
-    </button>
-    <button class="mob-nav-btn" data-c="red" data-page="hutang" onclick="showPage('hutang')">
-      <span class="mn-ic">💳</span><span class="mn-lb">Hutang</span>
-    </button>
-    <button class="mob-nav-btn" data-c="cyan" data-page="riwayat" onclick="showPage('riwayat')">
-      <span class="mn-ic">📊</span><span class="mn-lb">Riwayat</span>
-    </button>
-    <button class="mob-nav-btn" data-c="green" data-page="neraca" onclick="showPage('neraca')">
-      <span class="mn-ic">🏦</span><span class="mn-lb">Neraca</span>
-    </button>
-  </div>
-  <div class="mob-nav-row">
-    <button class="mob-nav-btn" data-c="orange" data-page="pelanggan" onclick="showPage('pelanggan')">
-      <span class="mn-ic">👥</span><span class="mn-lb">Pelanggan</span>
-    </button>
-    <button class="mob-nav-btn" data-c="amber" data-page="produk" onclick="showPage('produk')">
-      <span class="mn-ic">📦</span><span class="mn-lb">Produk</span>
-    </button>
-    <button class="mob-nav-btn" data-c="purple" data-page="faq" onclick="showPage('faq')">
-      <span class="mn-ic">❓</span><span class="mn-lb">FAQ</span>
-    </button>
-    <button class="mob-nav-btn" data-c="slate" data-page="pengaturan" onclick="showPage('pengaturan')">
-      <span class="mn-ic">⚙️</span><span class="mn-lb">Setelan</span>
-    </button>
-    <button class="mob-nav-btn" data-c="red" onclick="doLogout()">
-      <span class="mn-ic">🚪</span><span class="mn-lb">Logout</span>
-    </button>
-  </div>
-</nav>
 
 <!-- ===== SIDEBAR ===== -->
 <nav class="nav">
@@ -398,6 +359,44 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 </div>
 
 <div class="content-wrap">
+
+<!-- ===== MOBILE TOP NAV ===== -->
+<nav class="mob-nav" id="mob-nav">
+  <div class="mob-nav-row">
+    <button class="mob-nav-btn" data-c="blue" data-page="beranda" onclick="showPage('beranda')">
+      <span class="mn-ic">🏠</span><span class="mn-lb">Beranda</span>
+    </button>
+    <button class="mob-nav-btn" data-c="green" data-page="jual" onclick="showPage('jual')">
+      <span class="mn-ic">🛒</span><span class="mn-lb">Penjualan</span>
+    </button>
+    <button class="mob-nav-btn" data-c="red" data-page="hutang" onclick="showPage('hutang')">
+      <span class="mn-ic">💳</span><span class="mn-lb">Hutang</span>
+    </button>
+    <button class="mob-nav-btn" data-c="cyan" data-page="riwayat" onclick="showPage('riwayat')">
+      <span class="mn-ic">📊</span><span class="mn-lb">Riwayat</span>
+    </button>
+    <button class="mob-nav-btn" data-c="green" data-page="neraca" onclick="showPage('neraca')">
+      <span class="mn-ic">🏦</span><span class="mn-lb">Neraca</span>
+    </button>
+  </div>
+  <div class="mob-nav-row">
+    <button class="mob-nav-btn" data-c="orange" data-page="pelanggan" onclick="showPage('pelanggan')">
+      <span class="mn-ic">👥</span><span class="mn-lb">Pelanggan</span>
+    </button>
+    <button class="mob-nav-btn" data-c="amber" data-page="produk" onclick="showPage('produk')">
+      <span class="mn-ic">📦</span><span class="mn-lb">Produk</span>
+    </button>
+    <button class="mob-nav-btn" data-c="purple" data-page="faq" onclick="showPage('faq')">
+      <span class="mn-ic">❓</span><span class="mn-lb">FAQ</span>
+    </button>
+    <button class="mob-nav-btn" data-c="slate" data-page="pengaturan" onclick="showPage('pengaturan')">
+      <span class="mn-ic">⚙️</span><span class="mn-lb">Setelan</span>
+    </button>
+    <button class="mob-nav-btn" data-c="red" onclick="doLogout()">
+      <span class="mn-ic">🚪</span><span class="mn-lb">Logout</span>
+    </button>
+  </div>
+</nav>
 
 <!-- ===== BERANDA ===== -->
 <div id="page-beranda" class="page active">
