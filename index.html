@@ -208,7 +208,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .mob-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:100;background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08)}
 .mob-nav-row{display:flex;border-bottom:1px solid rgba(255,255,255,.07)}
 .mob-nav-row:last-child{border-bottom:none}
-.mob-nav-btn{flex:1;border:none;background:transparent;cursor:pointer;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;transition:.15s;border-bottom:2px solid transparent;position:relative}
+.mob-nav-btn{flex:1;border:none;background:transparent;cursor:pointer;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;transition:.15s;border-bottom:2px solid transparent}
 .mob-nav-btn:active{background:rgba(255,255,255,.06)}
 .mob-nav-btn .mn-ic{font-size:16px;line-height:1}
 .mob-nav-btn .mn-lb{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.4);line-height:1;white-space:nowrap;transition:.15s}
@@ -223,33 +223,20 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:600px){
-  /* Sembunyikan sidebar */
   .nav{display:none}
-
-  /* Tampilkan top nav */
   .mob-nav{display:block}
-
-  /* Content full width + beri ruang untuk top nav (~82px) */
   .content-wrap{margin-left:0;padding-top:100px}
-
-  /* Header & layout */
   .header{padding:10px 12px 8px}
   .header h2{font-size:16px}
   .main{padding:0 12px 24px}
-
-  /* Hero — diperkecil */
   .hero{padding:13px}
   .hero-val{font-size:21px}
   .hero-label{font-size:11px}
   .hero-sub{font-size:10px}
-
-  /* Stat cards */
   .stat-card{padding:10px}
   .stat-num{font-size:16px}
   .stat-label{font-size:10px}
   .grid2{gap:8px}
-
-  /* Kartu & list */
   .card{padding:11px}
   .list-item{padding:9px 10px;gap:9px}
   .li-icon{width:33px;height:33px;font-size:11px}
@@ -257,29 +244,17 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   .li-name{font-size:12px}
   .li-desc{font-size:10px}
   .li-amt{font-size:12px}
-
-  /* Grand total preview di Penjualan */
   #grand-total{font-size:19px !important}
-
-  /* Produk card */
   .prod-card{padding:10px}
-
-  /* Form */
   .fc{font-size:13px;padding:9px 11px}
   .btn{padding:10px 13px;font-size:13px}
-
-  /* QA grid */
   .qa-grid{gap:5px}
   .qa-btn{padding:8px 3px}
   .qa-icon{width:30px;height:30px}
   .qa-icon svg{width:14px;height:14px}
   .qa-lbl{font-size:9px}
-
-  /* Badge & tabs */
   .tab{padding:5px 11px;font-size:11px}
   .badge{font-size:9px;padding:2px 7px}
-
-  /* Sec title */
   .sec{font-size:12px}
 }
 </style>
@@ -428,7 +403,6 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <div id="page-beranda" class="page active">
   <div class="header" style="padding-bottom:12px">
     <div class="header-row">
-      
       <div>
         <div style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:4px">Selamat datang 👋</div>
         <h2 id="depot-name-header" style="line-height:1.2">MAZU WATER</h2>
@@ -1396,7 +1370,7 @@ function showPage(p){
     const oc=btn.getAttribute('onclick')||'';
     if(oc.includes("showPage('"+p+"')")) btn.classList.add('active');
   });
-  // sync mobile top nav active state
+  // sync mobile top nav
   document.querySelectorAll('.mob-nav-btn[data-page]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.page===p);
   });
