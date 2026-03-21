@@ -357,7 +357,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
         <h2 id="depot-name-header" style="line-height:1.2">MAZU WATER</h2>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <button onclick="loadFromSheets()" title="Refresh dari Sheets" style="border:none;background:var(--green-light);color:var(--green);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer">⟳ Tarik</button>
+        <button onclick="loadFromSheets()" title="Ambil data terbaru dari server" style="border:none;background:var(--green-light);color:var(--green);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer">⟳ Tarik</button>
         <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1a6bff,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;box-shadow:0 3px 10px rgba(26,107,255,.4)" id="avatar-initials">ZT</div>
       </div>
     </div>
@@ -404,7 +404,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="card" style="padding:13px;margin-bottom:10px">
       <div class="fg" style="margin-bottom:0">
         <label class="fl">Pelanggan</label>
-        <select class="fc" id="trx-pelanggan"><option value="">-- Umum (tanpa akun) --</option></select>
+        <select class="fc" id="trx-pelanggan"><option value="">--Pelanggan--</option></select>
       </div>
     </div>
 
@@ -808,7 +808,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
         <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:6px">📋 KETENTUAN STAMPEL</div>
         <div style="font-size:11px;color:var(--muted);line-height:1.8">
           • Isi tandon <strong>19 liter</strong> → <strong>1 stampel</strong><br>
-          • Isi tandon <strong>10 atau 15 liter</strong> → <strong>½ stampel</strong><br>
+          • Isi tandon selain 19 liter → <strong>0 stampel</strong> (tidak dapat)<br>
           • Terkumpul <strong>10 stampel</strong> → <strong>🎁 Gratis 1 galon isi tandon 19L</strong>
         </div>
       </div>
@@ -925,70 +925,11 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 <div id="page-faq" class="page">
   <div class="header"><div class="header-row"><button class="ham-btn" onclick="toggleNav()" title="Menu"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><h2>❓ FAQ</h2></div><div class="header-sub">Pertanyaan yang sering ditanyakan</div></div>
   <div class="main">
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">💧 Apa itu MAZU WATER?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">MAZU WATER adalah sistem manajemen depot air minum isi ulang yang membantu Anda mencatat penjualan, stok galon, stok air tandon, data pelanggan, hutang piutang, dan laporan keuangan secara digital.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🫙 Apa bedanya produk Galon dan Tandon?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7"><strong>Galon Kemasan</strong> adalah produk air minum bermerek (seperti Aqua, Le Minerale, Air RO) yang dijual per unit galon. Stok dihitung per satuan.<br><br><strong>Air Tandon</strong> adalah air curah yang diisi langsung ke tandon milik pelanggan, dijual berdasarkan volume (liter) dengan harga yang bisa diatur per volume tertentu (contoh: per 19 liter).</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">📦 Bagaimana cara menambah stok galon?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Produk → tab Galon</strong>. Di setiap kartu produk terdapat tombol <strong>➕ Tambah</strong> dan <strong>➖ Kurangi</strong>. Klik tombol tersebut untuk mencatat perubahan stok, lengkap dengan jumlah, harga modal, dan keterangan supplier.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🪣 Bagaimana cara menambah stok air tandon?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Produk → tab Tandon</strong>. Pada bagian <em>"💧 Tambah Stok Air Tandon"</em>, klik tombol <strong>+ Tambah</strong>, isi volume air (liter), harga per 1.000 liter, nama sumber/supplier, lalu simpan. Stok akan otomatis bertambah.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🛒 Bagaimana cara mencatat penjualan?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Penjualan</strong>. Pilih pelanggan, lalu pilih tipe produk (🫙 Galon atau 🪣 Tandon). Isi detail produk dan jumlah, klik <strong>"+ Tambah ke Transaksi"</strong>. Anda bisa menambahkan beberapa item sekaligus sebelum menekan <strong>✅ Simpan Transaksi</strong>.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">💳 Bagaimana cara mencatat hutang pelanggan?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">Ada dua cara: (1) Saat penjualan, pilih metode pembayaran <em>Kredit / Hutang</em>. (2) Buka menu <strong>Hutang → tab Catat</strong> untuk mencatat hutang manual. Untuk pembayaran hutang, gunakan <strong>Hutang → tab Bayar</strong>.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🏦 Apa itu Neraca Modal?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">Neraca Modal menampilkan estimasi total modal yang tertanam di stok saat ini — baik galon maupun air tandon. Termasuk perkiraan potensi omzet dan laba jika semua stok terjual. Gunakan ini untuk memantau kesehatan modal usaha Anda.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">👥 Bagaimana cara mengelola data pelanggan?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Pelanggan</strong>. Klik <strong>+ Tambah</strong> untuk mendaftarkan pelanggan baru. Setiap pelanggan bisa memiliki kapasitas tandon yang berbeda. Klik ✏️ untuk edit data, 🗑️ untuk hapus. Klik nama pelanggan untuk melihat riwayat transaksinya.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">📊 Bagaimana cara melihat laporan keuangan?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>Riwayat</strong>. Di bagian atas terdapat ringkasan laba bersih, omzet, dan pengeluaran bulan ini. Di bawahnya ada daftar transaksi yang bisa difilter dan dinavigasi dengan tombol Prev/Next. Tersedia juga tombol <strong>📥 Export CSV</strong> untuk mengunduh data.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">🔐 Bagaimana cara mengubah password?</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7">Buka menu <strong>⚙️ Setelan</strong>. Isi kolom <em>Username Baru</em> dan <em>Password Baru</em>, konfirmasi password, lalu klik <strong>💾 Simpan Pengaturan</strong>. Kosongkan kolom password jika hanya ingin mengubah profil depot saja.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:10px;background:var(--blue-light);border-left:3px solid var(--blue)">
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--blue)">💡 Tips Penggunaan</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.8">
-        • Tambahkan produk galon dan tandon terlebih dahulu sebelum mencatat penjualan<br>
-        • Isi stok awal di menu Produk setelah menambahkan produk baru<br>
-        • Daftarkan pelanggan tetap agar riwayat transaksi dan hutang lebih terstruktur<br>
-        • Gunakan fitur Koreksi Stok di menu Tandon jika ada selisih antara fisik dan sistem<br>
-        • Cek Neraca Modal secara rutin untuk memastikan modal tidak stagnan di stok
-      </div>
-    </div>
-
+    <div id="faq-list"></div>
+    <div style="display:flex;gap:8px;margin-top:6px" id="faq-pagination"></div>
   </div>
 </div>
+
 
 <!-- ===== PENGATURAN ===== -->
 <div id="page-pengaturan" class="page">
@@ -1020,12 +961,12 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="card" style="margin-bottom:10px">
       <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">☁️ SINKRONISASI DATA</div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.7">
-        Gunakan <strong>Kirim ke Sheets</strong> untuk memaksa upload semua data lokal ke Spreadsheet.<br>
-        Gunakan <strong>Tarik dari Sheets</strong> untuk mengambil data terbaru dari Spreadsheet ke perangkat ini.
+        Gunakan <strong>Kirim ke Server</strong> untuk mengunggah semua data ke server cloud.<br>
+        Gunakan <strong>Ambil dari Server</strong> untuk mengambil data terbaru dari server ke perangkat ini.
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="btn btn-teal" onclick="pushAllToSheets()" style="margin-bottom:0">⬆️ Kirim ke Sheets</button>
-        <button class="btn btn-secondary" onclick="loadFromSheets()" style="margin-bottom:0">⬇️ Tarik dari Sheets</button>
+        <button class="btn btn-teal" onclick="pushAllToSheets()" style="margin-bottom:0">⬆️ Kirim ke Server</button>
+        <button class="btn btn-secondary" onclick="loadFromSheets()" style="margin-bottom:0">⬇️ Ambil dari Server</button>
       </div>
     </div>
     <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan Pengaturan</button>
@@ -1287,11 +1228,11 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     </div>
     <!-- Stamp & Poin untuk tandon -->
     <div id="fg-stamp-poin-tandon" style="display:none">
-      <div style="background:var(--teal-light);border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--teal);font-weight:600">🎫 Stamp &amp; Poin untuk produk tandon ini</div>
+      <div style="background:var(--teal-light);border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--teal);font-weight:600">🎫 Stamp &amp; Poin — stampel hanya berlaku untuk isi 19L</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
         <div class="fg" style="margin-bottom:0">
           <label class="fl">Stampel per unit</label>
-          <input type="number" class="fc" id="produk-stamp" placeholder="0" value="0" min="0" step="0.5">
+          <input type="number" class="fc" id="produk-stamp" placeholder="0" value="0" min="0" step="1">
         </div>
         <div class="fg" style="margin-bottom:0">
           <label class="fl">Poin per unit</label>
@@ -1416,26 +1357,30 @@ async function pushToSheets(action, data){
     await fetch(GAS_URL,{method:'POST',mode:'no-cors',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action, data, depot:DB.settings.namaDepot})});
-  }catch(e){console.warn('Sheets push failed:',e.message)}
+  }catch(e){console.warn('Server sync failed:',e.message)}
 }
 
 // ── Tarik semua data dari Sheets (dipakai saat init) ──
 async function loadFromSheets(){
-  showSyncStatus('⏳ Memuat data dari Sheets...');
+  showSyncStatus('⏳ Mengambil data dari server...');
   try{
     const r=await fetch(GAS_URL+'?action=getAll&depot='+encodeURIComponent(DB.settings.namaDepot));
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d=await r.json();
     if(d.transaksi)  DB.transaksi  = d.transaksi;
-    if(d.pelanggan)  DB.pelanggan  = d.pelanggan;
+    if(d.pelanggan)  DB.pelanggan  = d.pelanggan.map(function(p){
+      // Normalisasi: server pakai 'telp', app pakai 'hp'
+      if(!p.hp && p.telp) p.hp = p.telp;
+      return p;
+    });
     if(d.produkGalon) DB.produkGalon = d.produkGalon;
     if(d.produkTandon)DB.produkTandon= d.produkTandon;
     if(d.settings)   Object.assign(DB.settings, d.settings);
     saveDB();
-    showSyncStatus('✅ Data berhasil dimuat');
+    showSyncStatus('✅ Data berhasil diambil dari server');
     renderBeranda();
   }catch(e){
-    showSyncStatus('⚠️ Gagal koneksi Sheets — pakai data lokal');
+    showSyncStatus('⚠️ Gagal terhubung ke server — menggunakan data lokal');
     console.warn(e);
   }
 }
@@ -1468,7 +1413,7 @@ function showPage(p){
   if(p==='pelanggan') renderPelanggan();
   if(p==='produk') renderProduk();
   if(p==='stampoin') renderStampoin();
-  if(p==='faq') {}
+  if(p==='faq') {faqPage=0;renderFAQ();}
   if(p==='pengaturan') loadSettings();
   window.scrollTo(0,0);
 }
@@ -1501,7 +1446,7 @@ function populatePelangganSelectJual(){
   ['trx-pelanggan','h-catat-pelanggan','h-bayar-pelanggan'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     const isOpt=(id==='trx-pelanggan');
-    el.innerHTML=(isOpt?'<option value="">-- Umum (tanpa akun) --</option>':'')+DB.pelanggan.map(p=>`<option value="${p.nama}">${p.nama}</option>`).join('');
+    el.innerHTML=(isOpt?'<option value="">--Pelanggan--</option>':'')+DB.pelanggan.map(p=>`<option value="${p.nama}">${p.nama}</option>`).join('');
   });
 }
 
@@ -2548,7 +2493,7 @@ function simpanPelanggan(){
   if(editId){
     const idx=DB.pelanggan.findIndex(p=>p.id===editId);
     if(idx>-1){
-      DB.pelanggan[idx]={...DB.pelanggan[idx],nama,hp,alamat,catatan};
+      DB.pelanggan[idx]={...DB.pelanggan[idx],nama,hp,telp:hp,alamat,catatan};
       saveDB();
       pushToSheets('savePelanggan',{
         id:DB.pelanggan[idx].id,nama,hp,alamat,catatan,
@@ -2559,7 +2504,7 @@ function simpanPelanggan(){
       toast('✅ Data pelanggan diperbarui!');
     }
   } else {
-    const newPlg={id:genId(),nama,hp,alamat,tandonKap:1000,catatan,
+    const newPlg={id:genId(),nama,hp,telp:hp,alamat,tandonKap:1000,catatan,
       stampel:0,poin:0,rewardFree:0,tgl:today()};
     DB.pelanggan.push(newPlg);
     saveDB();
@@ -2728,7 +2673,9 @@ function getPreviewStampPoin(item){
   if(item.tipe==='jual-tandon'){
     var prod=DB.produkTandon.find(function(p){return p.id===item.produkId;});
     if(prod){
-      stamp=(parseFloat(prod.stamp)||0)*jumlah;
+      // Stampel hanya untuk tandon 19 liter
+      var per=parseInt(prod.perLiter)||19;
+      stamp = per===19 ? (parseInt(prod.stamp)||0)*jumlah : 0;
       poin=(parseInt(prod.poin)||0)*jumlah;
     }
   } else if(item.tipe==='jual-galon'){
@@ -2749,7 +2696,7 @@ function hitungDanSimpanStampPoin(plg, item){
   var sp = getPreviewStampPoin(item);
 
   if(item.tipe==='jual-tandon'){
-    plg.stampel=(plg.stampel||0)+sp.stamp;
+    plg.stampel=(plg.stampel||0)+Math.floor(sp.stamp);
     plg.poin=(plg.poin||0)+sp.poin;
     plg.stampHistory.push({tgl:today(),type:'tandon',produk:item.produkNama,jumlah:jumlah,stamp:sp.stamp,poin:sp.poin});
     // Cek reward: tiap 10 stampel = gratis 1 galon 19L
@@ -2863,6 +2810,57 @@ function renderPoinList(){
     if(act==='edit-poin') editPoin(id);
     else if(act==='reset-poin') resetPoin1(id);
   };
+}
+
+function redeemReward(plgId){
+  var p=DB.pelanggan.find(function(x){return x.id===plgId;});
+  if(!p||!(p.rewardFree>0)){toast('Tidak ada reward tersedia','error');return;}
+  var box=document.getElementById('sp-redeem-confirm');
+  if(box){
+    document.getElementById('sp-redeem-nama').textContent=p.nama;
+    document.getElementById('sp-redeem-btn').onclick=function(){
+      p.rewardFree--;
+      saveDB();
+      pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
+      renderStampelList();
+      document.getElementById('sp-redeem-confirm').style.display='none';
+      toast('🎁 Reward ditukar! Sisa reward: '+(p.rewardFree||0)+'x');
+    };
+    box.style.display='flex';
+  }
+}
+
+function editStampel(plgId){
+  var p=DB.pelanggan.find(function(x){return x.id===plgId;});
+  if(!p) return;
+  document.getElementById('sp-edit-nama').textContent=p.nama;
+  document.getElementById('sp-edit-stampel-input').value=p.stampel||0;
+  document.getElementById('sp-edit-save-btn').onclick=function(){
+    var val=parseInt(document.getElementById('sp-edit-stampel-input').value)||0;
+    p.stampel=Math.max(0,val);
+    saveDB();
+    pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
+    renderStampelList();
+    document.getElementById('sp-edit-modal').style.display='none';
+    toast('Stampel '+p.nama+' diperbarui: '+p.stampel);
+  };
+  document.getElementById('sp-edit-modal').style.display='flex';
+}
+
+function resetStampel(plgId){
+  var p=DB.pelanggan.find(function(x){return x.id===plgId;});
+  if(!p) return;
+  var box=document.getElementById('sp-reset-confirm');
+  document.getElementById('sp-reset-nama').textContent=p.nama;
+  document.getElementById('sp-reset-ya-btn').onclick=function(){
+    p.stampel=0;p.rewardFree=0;p.stampHistory=[];
+    saveDB();
+    pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:0,poin:p.poin||0,rewardFree:0});
+    renderStampelList();
+    box.style.display='none';
+    toast('Stampel '+p.nama+' direset');
+  };
+  box.style.display='flex';
 }
 
 function editPoin(plgId){
@@ -3435,7 +3433,7 @@ function closeNav(){
 
 // ── Push SEMUA data ke Sheets sekaligus ──
 async function pushAllToSheets(){
-  showSyncStatus('⏳ Mengirim semua data ke Sheets...');
+  showSyncStatus('⏳ Mengirim semua data ke server...');
   try{
     // Push satu per satu secara berurutan
     await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
@@ -3446,13 +3444,63 @@ async function pushAllToSheets(){
       body:JSON.stringify({action:'saveAllPelanggan',data:{pelanggan:DB.pelanggan},depot:DB.settings.namaDepot})});
     await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'saveSettings',data:{settings:DB.settings},depot:DB.settings.namaDepot})});
-    showSyncStatus('✅ Semua data berhasil dikirim ke Sheets!');
-    toast('☁️ Sync selesai! Semua data terkirim ke Sheets');
+    showSyncStatus('✅ Semua data berhasil dikirim ke server!');
+    toast('☁️ Sinkronisasi selesai! Semua data terkirim ke server');
   }catch(e){
-    showSyncStatus('⚠️ Gagal kirim ke Sheets: '+e.message);
-    toast('Gagal kirim ke Sheets','error');
+    showSyncStatus('⚠️ Gagal mengirim ke server: '+e.message);
+    toast('Gagal mengirim ke server','error');
   }
 }
+
+// ═══════════════════════════════════════
+// FAQ DATA & PAGINATION
+// ═══════════════════════════════════════
+var FAQ_ITEMS = [
+  {q:'💧 Apa itu aplikasi ini?', a:'Aplikasi ini adalah sistem manajemen depot air minum isi ulang yang membantu mencatat penjualan, stok galon, stok air tandon, data pelanggan, hutang piutang, dan laporan keuangan secara digital.'},
+  {q:'🫙 Apa bedanya produk Galon dan Tandon?', a:'Galon Kemasan adalah produk air minum bermerek (seperti Aqua, Le Minerale, Air RO) yang dijual per unit galon. Stok dihitung per satuan. Air Tandon adalah air curah yang diisi langsung ke wadah pelanggan, dijual berdasarkan volume (liter) dengan harga per volume tertentu (contoh: per 19 liter).'},
+  {q:'📦 Bagaimana cara menambah stok galon?', a:'Buka menu Produk → tab Galon. Di setiap kartu produk terdapat tombol ➕ Tambah dan ➖ Kurangi. Klik tombol tersebut untuk mencatat perubahan stok lengkap dengan jumlah, harga modal, dan keterangan supplier.'},
+  {q:'🪣 Bagaimana cara menambah stok air tandon?', a:'Buka menu Produk → tab Tandon. Pada bagian "💧 Tambah Stok Air Tandon", klik tombol + Tambah, isi volume air (liter), harga per 1.000 liter, nama supplier, lalu simpan. Stok otomatis bertambah.'},
+  {q:'🛒 Bagaimana cara mencatat penjualan?', a:'Buka menu Penjualan. Pilih pelanggan, lalu pilih tipe produk (Galon atau Tandon). Isi detail produk dan jumlah, klik "+ Tambah ke Transaksi". Anda bisa menambahkan beberapa item sekaligus sebelum menekan ✅ Simpan Transaksi.'},
+  {q:'💳 Bagaimana cara mencatat hutang pelanggan?', a:'Ada dua cara: (1) Saat penjualan, pilih metode pembayaran Kredit / Hutang. (2) Buka menu Hutang → tab Catat untuk mencatat hutang manual. Untuk pembayaran hutang, gunakan Hutang → tab Bayar.'},
+  {q:'📊 Bagaimana cara melihat laporan keuangan?', a:'Buka menu Riwayat & Laporan. Di bagian atas terdapat ringkasan laba bersih, omzet, dan pengeluaran bulan ini. Tersedia tombol Unduh PDF untuk mengunduh laporan.'},
+  {q:'🏦 Apa itu Neraca Modal?', a:'Neraca Modal menampilkan estimasi total modal yang tertanam di stok saat ini — galon maupun air tandon. Termasuk perkiraan potensi omzet dan laba jika semua stok terjual. Gunakan ini untuk memantau kesehatan modal usaha Anda.'},
+  {q:'👥 Bagaimana cara mengelola data pelanggan?', a:'Buka menu Pelanggan. Klik + Tambah untuk mendaftarkan pelanggan baru. Klik ✏️ untuk edit data, 🗑️ untuk hapus. Klik nama pelanggan untuk melihat detail dan riwayat transaksinya.'},
+  {q:'🔐 Bagaimana cara mengubah password?', a:'Buka menu ⚙️ Setelan. Isi kolom Username Baru dan Password Baru, konfirmasi password, lalu klik 💾 Simpan Pengaturan. Kosongkan kolom password jika hanya ingin mengubah profil depot saja.'},
+  {q:'🎫 Apa itu fitur Stamp & Poin?', a:'Fitur loyalitas pelanggan. Stampel diberikan saat pelanggan isi tandon 19 liter — setiap 10 stampel mendapat 1 galon isi tandon 19L gratis. Poin diberikan sesuai produk yang dibeli, digunakan untuk memantau pelanggan setia dan menentukan THR tahunan. Fitur ini bisa diaktifkan/nonaktifkan di menu Setelan.'},
+  {q:'🎁 Bagaimana cara menukar reward stampel?', a:'Buka menu Stamp & Poin → tab Stampel. Temukan nama pelanggan yang sudah punya reward, lalu klik tombol Tukar Reward. Setelah dikonfirmasi, reward berkurang 1 dan pelanggan mendapat 1 galon isi tandon 19L gratis.'},
+  {q:'🔄 Bagaimana cara reset poin setelah THR dibagikan?', a:'Buka menu Stamp & Poin → tab Poin. Klik tombol Reset Semua di pojok kanan atas. Setelah konfirmasi, semua poin seluruh pelanggan direset ke 0. Lakukan ini setelah THR selesai dibagikan.'},
+  {q:'☁️ Bagaimana cara sinkronisasi data ke perangkat lain?', a:'Buka menu Setelan → bagian Sinkronisasi Data. Klik Kirim ke Server di perangkat lama untuk mengunggah semua data. Kemudian di perangkat baru, klik Ambil dari Server untuk mengunduh data terbaru.'},
+  {q:'🗑️ Bagaimana cara membatalkan transaksi?', a:'Buka menu Riwayat & Laporan. Setiap transaksi memiliki tombol 🗑️ Batalkan. Jika dalam satu sesi ada beberapa item, Anda bisa memilih item mana saja yang ingin dibatalkan menggunakan checkbox.'},
+  {q:'💡 Tips Penggunaan', a:'• Tambahkan produk galon dan tandon terlebih dahulu sebelum mencatat penjualan\n• Isi stok awal di menu Produk setelah menambahkan produk baru\n• Daftarkan pelanggan tetap agar riwayat transaksi dan hutang lebih terstruktur\n• Gunakan fitur Koreksi Stok di menu Tandon jika ada selisih antara fisik dan sistem\n• Cek Neraca Modal secara rutin untuk memantau kesehatan modal usaha'},
+];
+
+var faqPage=0;
+var FAQ_PER_PAGE=5;
+
+function renderFAQ(){
+  var el=document.getElementById('faq-list');
+  var pg=document.getElementById('faq-pagination');
+  if(!el) return;
+  var total=FAQ_ITEMS.length;
+  var totalPages=Math.max(1,Math.ceil(total/FAQ_PER_PAGE));
+  faqPage=Math.max(0,Math.min(faqPage,totalPages-1));
+  var slice=FAQ_ITEMS.slice(faqPage*FAQ_PER_PAGE,(faqPage+1)*FAQ_PER_PAGE);
+  el.innerHTML=slice.map(function(item){
+    var ans=item.a.replace(/\n/g,'<br>');
+    return '<div class="card" style="margin-bottom:10px">'
+      +'<div style="font-size:13px;font-weight:700;margin-bottom:6px">'+item.q+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);line-height:1.7">'+ans+'</div>'
+      +'</div>';
+  }).join('');
+  // Pagination
+  if(totalPages<=1){pg.innerHTML='';return;}
+  pg.innerHTML='<button onclick="faqPageGo(-1)" '+(faqPage===0?'disabled':'')
+    +' style="flex:1;border:1.5px solid var(--border);background:'+(faqPage===0?'var(--border)':'var(--card)')+';color:'+(faqPage===0?'var(--hint)':'var(--blue)')+';border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">← Prev</button>'
+    +'<span style="font-size:11px;color:var(--muted);white-space:nowrap;align-self:center">Hal '+(faqPage+1)+'/'+totalPages+' · '+total+' FAQ</span>'
+    +'<button onclick="faqPageGo(1)" '+(faqPage>=totalPages-1?'disabled':'')
+    +' style="flex:1;border:1.5px solid var(--border);background:'+(faqPage>=totalPages-1?'var(--border)':'var(--card)')+';color:'+(faqPage>=totalPages-1?'var(--hint)':'var(--blue)')+';border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Next →</button>';
+}
+function faqPageGo(dir){faqPage+=dir;renderFAQ();}
 </script>
 
 <!-- MODAL KASIR -->
@@ -3546,8 +3594,8 @@ async function pushAllToSheets(){
   <div style="background:var(--card);border-radius:18px;padding:24px 20px;width:100%;max-width:300px;box-shadow:0 16px 48px rgba(0,0,0,.3)">
     <div style="font-size:15px;font-weight:800;margin-bottom:4px">✏️ Edit Stampel</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="sp-edit-nama"></div>
-    <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px">Jumlah Stampel (bisa ½ misal: 2.5)</label>
-    <input type="number" step="0.5" min="0" id="sp-edit-stampel-input" class="fc" style="margin-bottom:14px">
+    <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px">Jumlah Stampel</label>
+    <input type="number" step="1" min="0" id="sp-edit-stampel-input" class="fc" style="margin-bottom:14px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button onclick="document.getElementById('sp-edit-modal').style.display='none'" style="border:2px solid var(--border);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--muted);font-family:inherit">Batal</button>
       <button id="sp-edit-save-btn" style="border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;background:var(--teal);color:#fff;font-family:inherit">Simpan</button>
