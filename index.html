@@ -2801,8 +2801,8 @@ function renderStampelList(){
     var id=btn.getAttribute('data-id');
     var act=btn.getAttribute('data-act');
     if(act==='redeem') redeemReward(id);
-    else if(act==='edit-stamp') requirePassword('Masukkan password untuk edit stampel',function(){ editStampel(id); });
-    else if(act==='reset-stamp') requirePassword('Masukkan password untuk reset stampel',function(){ resetStampel(id); });
+    else if(act==='edit-stamp') editStampel(id);
+    else if(act==='reset-stamp') resetStampel(id);
   };
 }
 function renderPoinList(){
@@ -2839,8 +2839,8 @@ function renderPoinList(){
     if(!btn) return;
     var id=btn.getAttribute('data-id');
     var act=btn.getAttribute('data-act');
-    if(act==='edit-poin') requirePassword('Masukkan password untuk edit poin',function(){ editPoin(id); });
-    else if(act==='reset-poin') requirePassword('Masukkan password untuk reset poin',function(){ resetPoin1(id); });
+    if(act==='edit-poin') editPoin(id);
+    else if(act==='reset-poin') resetPoin1(id);
   };
 }
 
@@ -2873,16 +2873,19 @@ function editStampel(plgId){
   if(!p) return;
   document.getElementById('sp-edit-nama').textContent=p.nama;
   document.getElementById('sp-edit-stampel-input').value=p.stampel||0;
+  document.getElementById('sp-edit-modal').style.display='flex';
+  setTimeout(function(){document.getElementById('sp-edit-stampel-input').focus();},100);
   document.getElementById('sp-edit-save-btn').onclick=function(){
     var val=parseInt(document.getElementById('sp-edit-stampel-input').value)||0;
-    p.stampel=Math.max(0,val);
-    saveDB();
-    pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
-    renderStampelList();
     document.getElementById('sp-edit-modal').style.display='none';
-    toast('Stampel '+p.nama+' diperbarui: '+p.stampel);
+    requirePassword('Masukkan password untuk menyimpan perubahan stampel',function(){
+      p.stampel=Math.max(0,val);
+      saveDB();
+      pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
+      renderStampelList();
+      toast('Stampel '+p.nama+' diperbarui: '+p.stampel);
+    });
   };
-  document.getElementById('sp-edit-modal').style.display='flex';
 }
 
 function resetStampel(plgId){
@@ -2890,15 +2893,17 @@ function resetStampel(plgId){
   if(!p) return;
   var box=document.getElementById('sp-reset-confirm');
   document.getElementById('sp-reset-nama').textContent=p.nama;
-  document.getElementById('sp-reset-ya-btn').onclick=function(){
-    p.stampel=0;p.rewardFree=0;p.stampHistory=[];
-    saveDB();
-    pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:0,poin:p.poin||0,rewardFree:0});
-    renderStampelList();
-    box.style.display='none';
-    toast('Stampel '+p.nama+' direset');
-  };
   box.style.display='flex';
+  document.getElementById('sp-reset-ya-btn').onclick=function(){
+    box.style.display='none';
+    requirePassword('Masukkan password untuk reset stampel '+p.nama,function(){
+      p.stampel=0;p.rewardFree=0;p.stampHistory=[];
+      saveDB();
+      pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:0,poin:p.poin||0,rewardFree:0});
+      renderStampelList();
+      toast('Stampel '+p.nama+' direset');
+    });
+  };
 }
 
 function editPoin(plgId){
@@ -2906,16 +2911,19 @@ function editPoin(plgId){
   if(!p) return;
   document.getElementById('sp-edit-poin-nama').textContent=p.nama;
   document.getElementById('sp-edit-poin-input').value=p.poin||0;
+  document.getElementById('sp-edit-poin-modal').style.display='flex';
+  setTimeout(function(){document.getElementById('sp-edit-poin-input').focus();},100);
   document.getElementById('sp-edit-poin-save-btn').onclick=function(){
     var val=parseInt(document.getElementById('sp-edit-poin-input').value)||0;
-    p.poin=Math.max(0,val);
-    saveDB();
-    pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
-    renderPoinList();
     document.getElementById('sp-edit-poin-modal').style.display='none';
-    toast('Poin '+p.nama+' diperbarui: '+p.poin);
+    requirePassword('Masukkan password untuk menyimpan perubahan poin',function(){
+      p.poin=Math.max(0,val);
+      saveDB();
+      pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
+      renderPoinList();
+      toast('Poin '+p.nama+' diperbarui: '+p.poin);
+    });
   };
-  document.getElementById('sp-edit-poin-modal').style.display='flex';
 }
 
 function resetPoin1(plgId){
@@ -2923,27 +2931,31 @@ function resetPoin1(plgId){
   if(!p) return;
   var box=document.getElementById('sp-reset-poin-confirm');
   document.getElementById('sp-reset-poin-nama').textContent=p.nama;
-  document.getElementById('sp-reset-poin-ya-btn').onclick=function(){
-    p.poin=0;
-    saveDB();
-    pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:0,rewardFree:p.rewardFree||0});
-    renderPoinList();
-    box.style.display='none';
-    toast('Poin '+p.nama+' direset');
-  };
   box.style.display='flex';
+  document.getElementById('sp-reset-poin-ya-btn').onclick=function(){
+    box.style.display='none';
+    requirePassword('Masukkan password untuk reset poin '+p.nama,function(){
+      p.poin=0;
+      saveDB();
+      pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:0,rewardFree:p.rewardFree||0});
+      renderPoinList();
+      toast('Poin '+p.nama+' direset');
+    });
+  };
 }
 
 function resetAllPoin(){
   var box=document.getElementById('sp-reset-all-poin-confirm');
   box.style.display='flex';
   document.getElementById('sp-reset-all-poin-ya-btn').onclick=function(){
-    DB.pelanggan.forEach(function(p){p.poin=0;});
-    saveDB();
-    pushToSheets('saveAllPelanggan',{pelanggan:DB.pelanggan});
-    renderPoinList();
     box.style.display='none';
-    toast('Semua poin pelanggan telah direset!');
+    requirePassword('Masukkan password untuk reset semua poin',function(){
+      DB.pelanggan.forEach(function(p){p.poin=0;});
+      saveDB();
+      pushToSheets('saveAllPelanggan',{pelanggan:DB.pelanggan});
+      renderPoinList();
+      toast('Semua poin pelanggan telah direset!');
+    });
   };
 }
 
