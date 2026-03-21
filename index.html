@@ -24,6 +24,7 @@
   --r:14px;--rs:10px;
 }
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior:none;font-size:15px;display:flex}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
 
 /* ── SIDEBAR ── */
 .nav{position:fixed;left:0;top:0;bottom:0;width:110px;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);display:flex;flex-direction:column;align-items:stretch;padding:0 0 calc(8px + var(--safe));z-index:100;box-shadow:3px 0 20px rgba(0,0,0,.18)}
@@ -1318,11 +1319,13 @@ function autoCleanup(){
     }
   });
 
-  // Hapus transaksi lama (hanya jual, bukan beli/bayar agar stok tetap akurat)
+  // Hapus transaksi lama (hanya jual LUNAS, bukan kredit/hutang/bayar agar piutang tetap akurat)
   DB.transaksi=DB.transaksi.filter(function(t){
     if(!t.tgl||t.tgl>=batasStr) return true; // masih baru, simpan
-    if(t.tipe==='jual-galon'||t.tipe==='jual-tandon') return false; // hapus yg sudah diakumulasi
-    return true; // bayar, beli, hutang tetap simpan
+    // Jual kredit/hutang: JANGAN hapus, masih perlu untuk kalkulasi piutang
+    if((t.tipe==='jual-galon'||t.tipe==='jual-tandon')&&(t.bayar==='kredit'||t.status==='hutang')) return true;
+    if(t.tipe==='jual-galon'||t.tipe==='jual-tandon') return false; // hapus yg lunas & sudah diakumulasi
+    return true; // bayar, beli, hutang-manual tetap simpan
   });
 
   saveDB();
@@ -1367,28 +1370,89 @@ async function pushToSheets(action, data){
   }catch(e){console.warn('Server sync failed:',e.message)}
 }
 
-// ── Tarik semua data dari Sheets (dipakai saat init) ──
-async function loadFromSheets(){
-  showSyncStatus('⏳ Mengambil data dari server...');
+// ── Tarik semua data dari Sheets ──
+let _syncTimer=null;
+let _syncBusy=false;
+const SYNC_INTERVAL=30000; // 30 detik
+
+async function loadFromSheets(silent){
+  if(_syncBusy) return;
+  _syncBusy=true;
+  if(!silent) showSyncStatus('⏳ Mengambil data dari server...');
+  setSyncDot('loading');
   try{
-    const r=await fetch(GAS_URL+'?action=getAll&depot='+encodeURIComponent(DB.settings.namaDepot));
+    const r=await fetch(GAS_URL+'?action=getAll&depot='+encodeURIComponent(DB.settings.namaDepot)+'&_t='+Date.now());
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d=await r.json();
-    if(d.transaksi)  DB.transaksi  = d.transaksi;
-    if(d.pelanggan)  DB.pelanggan  = d.pelanggan.map(function(p){
-      // Normalisasi: server pakai 'telp', app pakai 'hp'
+    if(d.transaksi)   DB.transaksi   = d.transaksi;
+    if(d.pelanggan)   DB.pelanggan   = d.pelanggan.map(function(p){
       if(!p.hp && p.telp) p.hp = p.telp;
       return p;
     });
-    if(d.produkGalon) DB.produkGalon = d.produkGalon;
-    if(d.produkTandon)DB.produkTandon= d.produkTandon;
-    if(d.settings)   Object.assign(DB.settings, d.settings);
+    if(d.produkGalon)  DB.produkGalon  = d.produkGalon;
+    if(d.produkTandon) DB.produkTandon = d.produkTandon;
+    if(d.settings)     Object.assign(DB.settings, d.settings);
     saveDB();
-    showSyncStatus('✅ Data berhasil diambil dari server');
+    setSyncDot('ok');
+    if(!silent) showSyncStatus('✅ Data berhasil diambil dari server');
+    // Re-render halaman aktif
+    const activePage=document.querySelector('.page.active');
+    const pageId=activePage?activePage.id.replace('page-',''):'beranda';
     renderBeranda();
+    if(pageId==='hutang')     renderHutangPage();
+    else if(pageId==='pelanggan') renderPelanggan();
+    else if(pageId==='transaksi') renderTrxPage();
+    else if(pageId==='riwayat')   renderRiwayat&&renderRiwayat();
+    applyFiturStampoin();
   }catch(e){
-    showSyncStatus('⚠️ Gagal terhubung ke server — menggunakan data lokal');
+    setSyncDot('error');
+    if(!silent) showSyncStatus('⚠️ Gagal terhubung ke server — menggunakan data lokal');
     console.warn(e);
+  } finally {
+    _syncBusy=false;
+  }
+}
+
+// ── Auto-sync: mulai polling setiap SYNC_INTERVAL ms ──
+function startAutoSync(){
+  stopAutoSync();
+  _syncTimer=setInterval(function(){ loadFromSheets(true); }, SYNC_INTERVAL);
+}
+function stopAutoSync(){
+  if(_syncTimer){ clearInterval(_syncTimer); _syncTimer=null; }
+}
+
+// ── Sync saat tab kembali aktif ──
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible' && sessionStorage.getItem('mazu_logged')==='1'){
+    loadFromSheets(true);
+  }
+});
+
+// ── Indikator dot realtime di header ──
+function setSyncDot(state){
+  let dot=document.getElementById('sync-dot');
+  if(!dot){
+    // Buat dot dan sisipkan di sebelah tombol Tarik
+    const tarikBtn=document.querySelector('[onclick="loadFromSheets()"]');
+    if(!tarikBtn) return;
+    dot=document.createElement('span');
+    dot.id='sync-dot';
+    dot.title='Status sinkronisasi';
+    dot.style.cssText='display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:4px 8px;border-radius:20px;margin-left:6px;transition:.3s';
+    tarikBtn.parentNode.insertBefore(dot,tarikBtn.nextSibling);
+  }
+  if(state==='loading'){
+    dot.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;animation:pulse-dot 1s infinite"></span> Sync...';
+    dot.style.background='var(--amber-light)';dot.style.color='var(--amber)';
+  } else if(state==='ok'){
+    const now=new Date();
+    const jam=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
+    dot.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span> '+jam;
+    dot.style.background='var(--green-light)';dot.style.color='var(--green)';
+  } else {
+    dot.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block"></span> Offline';
+    dot.style.background='var(--red-light)';dot.style.color='var(--red)';
   }
 }
 
@@ -1639,12 +1703,32 @@ function resetKeranjang(){
 
 function simpanTransaksiJual(){
   if(!keranjang.length){toast('Tambahkan item terlebih dahulu','error');return;}
-  var pelanggan=document.getElementById('trx-pelanggan').value||'Umum';
+  var pelanggan=document.getElementById('trx-pelanggan').value||'';
   var bayar=document.getElementById('trx-bayar').value;
   var catatan=document.getElementById('trx-catatan').value;
   var diskon=parseInt(document.getElementById('trx-diskon').value)||0;
   var totalAll=Math.max(0,keranjang.reduce(function(a,i){return a+i.subtotal;},0)-diskon);
-  window._kasirData={pelanggan:pelanggan,bayar:bayar,catatan:catatan,diskon:diskon,totalAll:totalAll,dibayar:0,kembalian:0,grupId:genId()};
+
+  // Wajib pelanggan untuk kredit / hutang
+  if(bayar==='kredit'&&!pelanggan){
+    toast('⚠️ Pilih nama pelanggan untuk mencatat hutang!','error');
+    document.getElementById('trx-pelanggan').focus();
+    return;
+  }
+
+  // Warning poin/stampel hangus jika tidak ada pelanggan
+  if(!pelanggan && DB.settings.fiturStampoin){
+    var adaPoinStamp=keranjang.some(function(item){
+      var prod=(item.tipe==='galon'?DB.produkGalon:DB.produkTandon).find(function(p){return p.id===item.produkId;});
+      return prod&&(prod.poin>0||prod.stamp>0);
+    });
+    if(adaPoinStamp){
+      toast('ℹ️ Tidak ada pelanggan dipilih — poin/stampel tidak dicatat','info');
+    }
+  }
+
+  var finalPelanggan=pelanggan||'Umum';
+  window._kasirData={pelanggan:finalPelanggan,bayar:bayar,catatan:catatan,diskon:diskon,totalAll:totalAll,dibayar:0,kembalian:0,grupId:genId()};
   if(bayar==='kredit'){tampilKonfirmasiSimpan(totalAll,0,0);return;}
   tampilKasir(totalAll);
 }
@@ -1791,15 +1875,34 @@ function updateTandonDisplay(){
   if(bar) bar.style.width=pct+'%';
 }
 function getTotalHutangPelanggan(nama){
-  let total=0;
-  DB.transaksi.forEach(t=>{
-    if(t.pelanggan===nama&&t.status==='hutang'&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'||t.tipe==='hutang')) total+=t.total;
-    if(t.pelanggan===nama&&t.tipe==='bayar') total-=t.total;
+  // Sumber kebenaran: t.status === 'hutang'
+  // simpanBayarHutang2 mengubah status per-transaksi menjadi 'lunas' saat dibayar
+  // Jadi cukup jumlahkan transaksi yang masih status='hutang'
+  var total=0;
+  DB.transaksi.forEach(function(t){
+    if(t.pelanggan!==nama) return;
+    if(t.status!=='hutang') return;
+    if(t.tipe==='hutang'||t.tipe==='jual-galon'||t.tipe==='jual-tandon'){
+      total+=+(t.total)||0;
+    }
   });
-  return Math.max(0,total);
+  return total;
 }
 
 // ═══════════════════════════════════════
+function getDetailHutangPelanggan(nama){
+  var totalHutang=0, sudahBayar=0;
+  DB.transaksi.forEach(function(t){
+    if(t.pelanggan!==nama) return;
+    if((t.tipe==='hutang'||t.tipe==='jual-galon'||t.tipe==='jual-tandon')&&(t.bayar==='kredit'||t.status==='hutang'||t.tipe==='hutang')){
+      totalHutang+=+(t.total)||0;
+    }
+    if(t.tipe==='bayar') sudahBayar+=+(t.total)||0;
+  });
+  var sisa=getTotalHutangPelanggan(nama);
+  return {totalHutang:totalHutang, sudahBayar:sudahBayar, sisa:sisa};
+}
+
 // BERANDA
 // ═══════════════════════════════════════
 function renderBeranda(){
@@ -1838,9 +1941,9 @@ function renderBeranda(){
   }
   elTandon.style.color=tandonColor;
   elTandon.innerHTML=tandonContent;
-  const totalHutang=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'||t.tipe==='hutang')).reduce((a,t)=>a+(+(t.total)||0),0);
-  const bayarHutang=DB.transaksi.filter(t=>t.tipe==='bayar').reduce((a,t)=>a+(+(t.total)||0),0);
-  document.getElementById('total-hutang-stat').textContent=fmt(Math.max(0,totalHutang-bayarHutang));
+  // Gunakan getTotalHutangPelanggan per pelanggan agar konsisten
+  const _totalPiutang=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='hutang'||t.tipe==='jual-galon'||t.tipe==='jual-tandon')).reduce((a,t)=>a+(+(t.total)||0),0);
+  document.getElementById('total-hutang-stat').textContent=fmt(_totalPiutang);
   const bulan=today().slice(0,7);
   document.getElementById('omzet-bulan').textContent=fmt(DB.transaksi.filter(t=>t.tgl.startsWith(bulan)&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon')).reduce((a,t)=>a+(+(t.total)||0),0));
   renderBerandaChart();
@@ -1916,12 +2019,13 @@ function filterTrx(f,btn){
   renderTrx(f);
 }
 function renderTrx(f){
-  let list=[...DB.transaksi].reverse();
-  if(f==='galon') list=list.filter(t=>t.tipe==='jual-galon');
-  if(f==='tandon') list=list.filter(t=>t.tipe==='jual-tandon');
-  if(f==='beli') list=list.filter(t=>t.tipe==='beli-galon'||t.tipe==='beli-tandon');
-  if(f==='hutang') list=list.filter(t=>t.tipe==='hutang'||t.tipe==='bayar'||t.status==='hutang');
-  document.getElementById('trx-list').innerHTML=list.length?list.map(trxHTML).join(''):'<div class="empty"><p>Tidak ada transaksi</p></div>';
+  // Pakai buildRiwayatEntries agar grouping konsisten dengan halaman Riwayat
+  var entries=buildRiwayatEntries(f==='semua'||!f?'semua':f);
+  // Untuk tab hari ini: filter tanggal hari ini saja
+  if(f==='semua'||!f) entries=entries.filter(function(e){return e.tgl===today();});
+  document.getElementById('trx-list').innerHTML=entries.length
+    ?entries.map(riwayatEntriHTML).join('')
+    :'<div class="empty"><p>Tidak ada transaksi</p></div>';
 }
 
 // ═══════════════════════════════════════
@@ -2433,31 +2537,67 @@ function switchHutangTab(tab, btn){
   if(tab==='daftar') renderDaftarHutang();
 }
 function renderDaftarHutang(){
-  const hutangTrx=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'||t.tipe==='hutang'));
-  const total=hutangTrx.reduce((a,t)=>a+(+(t.total)||0),0);
-  const bayarTotal=DB.transaksi.filter(t=>t.tipe==='bayar').reduce((a,t)=>a+(+(t.total)||0),0);
-  document.getElementById('h-total-piutang').textContent=fmt(Math.max(0,total-bayarTotal));
-  document.getElementById('h-count-hutang').textContent=hutangTrx.length+' trx';
-  const el=document.getElementById('h-daftar-list');
-  if(!hutangTrx.length){el.innerHTML='<div class="empty"><p>Tidak ada hutang aktif 🎉</p></div>';return;}
-  // Group by pelanggan
-  const byPlg={};
-  hutangTrx.forEach(t=>{
-    if(!byPlg[t.pelanggan]) byPlg[t.pelanggan]=[];
-    byPlg[t.pelanggan].push(t);
+  // Kumpulkan semua pelanggan yang pernah bertransaksi kredit/hutang
+  const pelSet=new Set();
+  DB.transaksi.forEach(function(t){
+    if(!t.pelanggan||t.pelanggan==='Umum') return;
+    if(t.tipe==='hutang') pelSet.add(t.pelanggan);
+    if((t.tipe==='jual-galon'||t.tipe==='jual-tandon')&&(t.bayar==='kredit'||t.status==='hutang')) pelSet.add(t.pelanggan);
   });
-  el.innerHTML=Object.entries(byPlg).map(([nama,trxs])=>{
-    const tot=trxs.reduce((a,t)=>a+(+(t.total)||0),0);
-    const bayar=DB.transaksi.filter(t=>t.pelanggan===nama&&t.tipe==='bayar').reduce((a,t)=>a+(+(t.total)||0),0);
-    const sisa=Math.max(0,tot-bayar);
-    return `<div class="list-item">
-      <div class="li-icon" style="background:var(--red-light);color:var(--red)">${nama.slice(0,2).toUpperCase()}</div>
-      <div class="li-body"><div class="li-name">${nama}</div><div class="li-desc">${trxs.length} transaksi belum lunas</div></div>
-      <div class="li-right">
-        <div class="li-amt" style="color:var(--red)">${fmt(sisa)}</div>
-        <button onclick="quickBayar('${nama}',${sisa})" style="margin-top:4px;border:none;background:var(--green-light);color:var(--green);border-radius:7px;padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer">Bayar</button>
-      </div>
-    </div>`;
+
+  // Filter hanya yang sisa hutang > 0
+  const aktif=[...pelSet]
+    .map(function(nama){return {nama:nama,sisa:getTotalHutangPelanggan(nama)};})
+    .filter(function(x){return x.sisa>0;})
+    .sort(function(a,b){return b.sisa-a.sisa;});
+
+  const totalBersih=aktif.reduce(function(a,x){return a+x.sisa;},0);
+  document.getElementById('h-total-piutang').textContent=fmt(totalBersih);
+  document.getElementById('h-count-hutang').textContent=aktif.length+' pelanggan';
+
+  const el=document.getElementById('h-daftar-list');
+  if(!aktif.length){el.innerHTML='<div class="empty"><p>Tidak ada hutang aktif \ud83c\udf89</p></div>';return;}
+
+  el.innerHTML=aktif.map(function(x){
+    var nama=x.nama; var sisa=x.sisa;
+    var detail=getDetailHutangPelanggan(nama);
+    var adaBayar=detail.sudahBayar>0;
+    return '<div class="card" style="margin-bottom:10px;padding:0;overflow:hidden">'
+      +'<div style="display:flex;align-items:center;gap:12px;padding:13px 13px 10px">'
+        +'<div style="width:40px;height:40px;border-radius:12px;background:var(--red-light);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0">'+nama.slice(0,2).toUpperCase()+'</div>'
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:14px;font-weight:700">'+nama+'</div>'
+          +'<div style="font-size:11px;color:var(--muted)">'+(adaBayar?'Bayar sebagian':'Belum ada pembayaran')+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0">'
+          +'<div style="font-size:18px;font-weight:800;color:var(--red)">'+fmt(sisa)+'</div>'
+          +'<div style="font-size:10px;color:var(--muted)">sisa hutang</div>'
+        +'</div>'
+      +'</div>'
+      +'<div style="margin:0 13px 10px;background:var(--bg);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:5px">'
+        +'<div style="display:flex;justify-content:space-between">'
+          +'<span style="font-size:11px;color:var(--muted);font-weight:500">Total Hutang</span>'
+          +'<span style="font-size:13px;font-weight:700">'+fmt(detail.totalHutang)+'</span>'
+        +'</div>'
+        +(adaBayar
+          ? '<div style="display:flex;justify-content:space-between">'
+              +'<span style="font-size:11px;color:var(--muted);font-weight:500">Sudah Dibayar</span>'
+              +'<span style="font-size:13px;font-weight:700;color:var(--green)">\u2212'+fmt(detail.sudahBayar)+'</span>'
+            +'</div>'
+            +'<div style="height:1px;background:var(--border);margin:3px 0"></div>'
+            +'<div style="display:flex;justify-content:space-between">'
+              +'<span style="font-size:12px;font-weight:700;color:var(--red)">Sisa Hutang</span>'
+              +'<span style="font-size:14px;font-weight:800;color:var(--red)">'+fmt(sisa)+'</span>'
+            +'</div>'
+          : '')
+      +'</div>'
+      +'<div style="padding:0 13px 13px">'
+        +'<button onclick="quickBayar(\''+nama+'\','+sisa+')" '
+          +'style="width:100%;border:none;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">'
+          +'\u2705 Bayar Hutang'
+        +'</button>'
+      +'</div>'
+      +'</div>';
   }).join('');
 }
 function quickBayar(nama, sisa){
@@ -2497,20 +2637,45 @@ function simpanBayarHutang2(){
   const pelanggan=document.getElementById('h-bayar-pelanggan').value;
   const jumlah=parseInt(document.getElementById('h-bayar-jumlah').value)||0;
   const metode=document.getElementById('h-bayar-metode').value;
-  if(!jumlah){toast('Masukkan jumlah','error');return}
-  const bayarTrx={id:genId(),tipe:'bayar',pelanggan,jumlah:1,harga:jumlah,total:jumlah,bayar:metode,status:'lunas',catatan:'Bayar hutang',tgl:today()};
-  DB.transaksi.push(bayarTrx);
-  let sisa=jumlah;
-  DB.transaksi.forEach(t=>{if(t.pelanggan===pelanggan&&t.status==='hutang'&&sisa>0){if(t.total<=sisa){t.status='lunas';sisa-=t.total;}}});
-  saveDB();
-  pushToSheets('addTransaksi',bayarTrx);
-  renderBeranda(); toast('✅ Pembayaran berhasil!');
-  document.getElementById('h-bayar-jumlah').value='';
-  switchHutangTab('daftar');
-  document.querySelectorAll('#hutang-tabs .tab')[0].classList.add('active');
-  document.querySelectorAll('#hutang-tabs .tab')[2].classList.remove('active');
-  renderDaftarHutang();
+  if(!pelanggan){toast('Pilih pelanggan terlebih dahulu','error');return;}
+  if(!jumlah||jumlah<=0){toast('Masukkan jumlah bayar','error');return;}
+
+  const hutangTotal=getTotalHutangPelanggan(pelanggan);
+  const metLbl={tunai:'Tunai',transfer:'Transfer',qris:'QRIS'};
+  const isLunas=hutangTotal>0&&jumlah>=hutangTotal;
+  const sisaSetelah=Math.max(0,hutangTotal-jumlah);
+  const subText=isLunas
+    ?pelanggan+' membayar lunas Rp '+jumlah.toLocaleString('id-ID')+' via '+(metLbl[metode]||metode)
+    :pelanggan+' membayar Rp '+jumlah.toLocaleString('id-ID')+' via '+(metLbl[metode]||metode)+(hutangTotal>0?' · Sisa: Rp '+sisaSetelah.toLocaleString('id-ID'):'');
+
+  showConfirm(
+    isLunas?'✅':'💳',
+    isLunas?'Konfirmasi Pelunasan':'Konfirmasi Pembayaran',
+    subText,
+    isLunas?'Ya, Lunas!':'Ya, Bayar!',
+    function(){
+      const bayarTrx={id:genId(),tipe:'bayar',pelanggan,jumlah:1,harga:jumlah,total:jumlah,bayar:metode,status:'lunas',catatan:'Bayar hutang',tgl:today()};
+      DB.transaksi.push(bayarTrx);
+      let sisa=jumlah;
+      DB.transaksi.forEach(t=>{
+        if(t.pelanggan===pelanggan&&t.status==='hutang'&&sisa>0){
+          if(t.total<=sisa){t.status='lunas';sisa-=t.total;}
+        }
+      });
+      saveDB();
+      pushToSheets('addTransaksi',bayarTrx);
+      pushToSheets('saveAllTransaksi',{transaksi:DB.transaksi});
+      renderBeranda();
+      toast('✅ Pembayaran Rp '+jumlah.toLocaleString('id-ID')+' berhasil!');
+      document.getElementById('h-bayar-jumlah').value='';
+      switchHutangTab('daftar');
+      document.querySelectorAll('#hutang-tabs .tab')[0].classList.add('active');
+      document.querySelectorAll('#hutang-tabs .tab')[2].classList.remove('active');
+      renderDaftarHutang();
+    }
+  );
 }
+
 // legacy stubs (for old modal calls)
 function simpanHutang(){ simpanHutangBaru(); }
 function loadHutangPelanggan(){ loadHutangPelanggan2(); }
@@ -2845,7 +3010,7 @@ function renderPoinList(){
 }
 
 function redeemReward(plgId){
-  var p=DB.pelanggan.find(function(x){return x.id===plgId;});
+  var p=DB.pelanggan.find(function(x){return x.id===plgId||String(x.id)===String(plgId);});
   if(!p) return;
   // Konversi stampel>=10 jadi reward dulu jika belum terkonversi
   while((p.stampel||0)>=10){
@@ -2857,20 +3022,74 @@ function redeemReward(plgId){
   if(box){
     document.getElementById('sp-redeem-nama').textContent=p.nama;
     document.getElementById('sp-redeem-btn').onclick=function(){
-      p.rewardFree--;
-      saveDB();
-      pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
-      renderStampelList();
       document.getElementById('sp-redeem-confirm').style.display='none';
-      toast('🎁 Reward ditukar! Sisa reward: '+(p.rewardFree||0)+'x');
+
+      // Cek stok tandon cukup
+      var stokTandon=getTandonStok();
+      if(stokTandon<19){
+        toast('⚠️ Stok air tandon tidak cukup! Sisa: '+stokTandon+' L','error');
+        return;
+      }
+
+      // Kurangi reward
+      p.rewardFree--;
+      p.stampel=p.stampel||0;
+      saveDB();
+
+      // Buat transaksi pengurangan tandon 19L (masuk riwayat)
+      var trxId=genId();
+      var trx={
+        id:trxId,
+        tipe:'jual-tandon',
+        produkId:'reward-stamp',
+        produkNama:'Reward Stampel (19L Gratis)',
+        pelanggan:p.nama,
+        jumlah:19,
+        harga:0,
+        total:0,
+        bayar:'reward',
+        status:'lunas',
+        catatan:'Penukaran reward stampel - gratis 1x isi 19L',
+        tgl:today(),
+        grupId:genId()
+      };
+      DB.transaksi.push(trx);
+
+      saveDB();
+      pushToSheets('addTransaksi',trx);
+      pushToSheets('savePelanggan',{
+        id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',
+        catatan:p.catatan||'',stampel:p.stampel||0,
+        poin:p.poin||0,rewardFree:p.rewardFree||0
+      });
+
+      renderStampelList();
+      renderBeranda();
+      // Refresh riwayat jika sedang aktif, atau rebuild data agar siap saat dibuka
+      if(typeof riwayatFilter!=='undefined') filterRiwayat(riwayatFilter);
+
+      // Tampilkan popup sukses besar
+      showRewardSuksesModal(p.nama, getTandonStok());
     };
     box.style.display='flex';
   }
 }
 
+function showRewardSuksesModal(nama, sisaTandon){
+  var modal=document.getElementById('reward-sukses-modal');
+  if(!modal) return;
+  document.getElementById('reward-sukses-nama').textContent=nama;
+  document.getElementById('reward-sukses-tandon').textContent=sisaTandon.toLocaleString('id-ID');
+  modal.style.display='flex';
+}
+
 function editStampel(plgId){
-  var p=DB.pelanggan.find(function(x){return x.id===plgId;});
-  if(!p) return;
+  // Cari by id (exact match string), fallback ke string(id) untuk handle type mismatch dari Sheets
+  var p=DB.pelanggan.find(function(x){return x.id===plgId||String(x.id)===String(plgId);});
+  if(!p){
+    toast('Pelanggan tidak ditemukan (id: '+plgId+')','error');
+    return;
+  }
   document.getElementById('sp-edit-nama').textContent=p.nama;
   document.getElementById('sp-edit-stampel-input').value=p.stampel||0;
   document.getElementById('sp-edit-modal').style.display='flex';
@@ -2878,18 +3097,20 @@ function editStampel(plgId){
   document.getElementById('sp-edit-save-btn').onclick=function(){
     var val=parseInt(document.getElementById('sp-edit-stampel-input').value)||0;
     document.getElementById('sp-edit-modal').style.display='none';
-    requirePassword('Masukkan password untuk menyimpan perubahan stampel',function(){
-      p.stampel=Math.max(0,val);
-      saveDB();
-      pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
-      renderStampelList();
-      toast('Stampel '+p.nama+' diperbarui: '+p.stampel);
-    });
+    setTimeout(function(){
+      requirePassword('Masukkan password untuk menyimpan perubahan stampel',function(){
+        p.stampel=Math.max(0,val);
+        saveDB();
+        pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:p.stampel||0,poin:p.poin||0,rewardFree:p.rewardFree||0});
+        renderStampelList();
+        toast('🎟 Stampel '+p.nama+' diperbarui: '+p.stampel);
+      });
+    },150);
   };
 }
 
 function resetStampel(plgId){
-  var p=DB.pelanggan.find(function(x){return x.id===plgId;});
+  var p=DB.pelanggan.find(function(x){return x.id===plgId||String(x.id)===String(plgId);});
   if(!p) return;
   var box=document.getElementById('sp-reset-confirm');
   document.getElementById('sp-reset-nama').textContent=p.nama;
@@ -2901,13 +3122,13 @@ function resetStampel(plgId){
       saveDB();
       pushToSheets('savePelanggan',{id:p.id,nama:p.nama,hp:p.hp||'',alamat:p.alamat||'',catatan:p.catatan||'',stampel:0,poin:p.poin||0,rewardFree:0});
       renderStampelList();
-      toast('Stampel '+p.nama+' direset');
+      toast('0001F39F STAMPEL '+P.NAMA+' direset');
     });
   };
 }
 
 function editPoin(plgId){
-  var p=DB.pelanggan.find(function(x){return x.id===plgId;});
+  var p=DB.pelanggan.find(function(x){return x.id===plgId||String(x.id)===String(plgId);});
   if(!p) return;
   document.getElementById('sp-edit-poin-nama').textContent=p.nama;
   document.getElementById('sp-edit-poin-input').value=p.poin||0;
@@ -2974,7 +3195,7 @@ function previewTrx(id){
     'beli-galon':'Beli Galon','beli-tandon':'Stok Air Masuk',
     'hutang':'Hutang','bayar':'Bayar Hutang'
   };
-  const metodeLabel={tunai:'Tunai',transfer:'Transfer',qris:'QRIS',kredit:'Kredit/Hutang'};
+  const metodeLabel={tunai:'Tunai',transfer:'Transfer',qris:'QRIS',kredit:'Kredit/Hutang',reward:'🎁 Reward Stampel'};
   const totalGrup=grup.reduce((a,x)=>a+x.total,0);
   const itemsHtml=grup.map(x=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
@@ -3096,7 +3317,7 @@ function batalKonfirmasiTrx(ids){
 function renderRiwayat(){
   // Summary stats — bulan ini
   const bulan=today().slice(0,7);
-  const trxBulan=DB.transaksi.filter(t=>t.tgl.startsWith(bulan));
+  const trxBulan=DB.transaksi.filter(t=>t.tgl&&t.tgl.startsWith(bulan));
   const pendGalon=trxBulan.filter(t=>t.tipe==='jual-galon').reduce((a,t)=>a+(+(t.total)||0),0);
   const pendTandon=trxBulan.filter(t=>t.tipe==='jual-tandon').reduce((a,t)=>a+(+(t.total)||0),0);
   const pengeluaran=trxBulan.filter(t=>t.tipe==='beli-galon').reduce((a,t)=>a+(+(t.total)||0),0);
@@ -3106,12 +3327,81 @@ function renderRiwayat(){
   document.getElementById('riwayat-pengeluaran').textContent=fmt(pengeluaran);
   document.getElementById('riwayat-galon').textContent=fmt(pendGalon);
   document.getElementById('riwayat-tandon').textContent=fmt(pendTandon);
-  const piutang=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='jual-galon'||t.tipe==='jual-tandon'||t.tipe==='hutang')).reduce((a,t)=>a+(+(t.total)||0),0);
-  const bayar=DB.transaksi.filter(t=>t.tipe==='bayar').reduce((a,t)=>a+(+(t.total)||0),0);
-  document.getElementById('riwayat-piutang').textContent=fmt(Math.max(0,piutang-bayar));
+  const _rPiutang=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='hutang'||t.tipe==='jual-galon'||t.tipe==='jual-tandon')).reduce((a,t)=>a+(+(t.total)||0),0);
+  document.getElementById('riwayat-piutang').textContent=fmt(_rPiutang);
   const hutangSup=DB.transaksi.filter(t=>t.status==='hutang'&&(t.tipe==='beli-galon'||t.tipe==='beli-tandon')).reduce((a,t)=>a+(+(t.total)||0),0);
   document.getElementById('riwayat-hutang-sup').textContent=fmt(hutangSup);
   filterRiwayat(riwayatFilter);
+}
+
+
+// RIWAYAT grouped display
+
+function buildRiwayatEntries(filter){
+  var entries=[];
+  var seenGrup={};
+  var trxList=[...DB.transaksi].sort(function(a,b){
+    if((b.tgl||'')>(a.tgl||'')) return 1;
+    if((b.tgl||'')<(a.tgl||'')) return -1;
+    return 0;
+  });
+  trxList.forEach(function(t){
+    // Bayar hutang tidak ditampilkan sebagai baris tersendiri
+    if(t.tipe==='bayar') return;
+
+    // Penjualan: group by grupId, fallback ke pelanggan+tanggal untuk data lama
+    if(t.tipe==='jual-galon'||t.tipe==='jual-tandon'){
+      var key=t.grupId||(t.tgl+'__'+(t.pelanggan||'Umum'));
+      if(seenGrup[key]) return;
+      seenGrup[key]=true;
+      var items=t.grupId
+        ? DB.transaksi.filter(function(x){return x.grupId===t.grupId&&(x.tipe==='jual-galon'||x.tipe==='jual-tandon');})
+        : DB.transaksi.filter(function(x){return !x.grupId&&x.tgl===t.tgl&&(x.pelanggan||'Umum')===(t.pelanggan||'Umum')&&(x.tipe==='jual-galon'||x.tipe==='jual-tandon');});
+      var totalGrup=items.reduce(function(a,x){return a+(+(x.total)||0);},0);
+      // Status diambil langsung dari field transaksi (bukan aggregate pelanggan)
+      // Jika ada item kredit/hutang, cek apakah semua sudah lunas berdasarkan status field
+      var adaKredit=items.some(function(x){return x.bayar==='kredit'||x.status==='hutang';});
+      var semuaLunas=items.every(function(x){return x.status==='lunas';});
+      var status=adaKredit?(semuaLunas?'lunas':'hutang'):'lunas';
+      var desc=items.length===1
+        ?(items[0].tipe==='jual-galon'?items[0].jumlah+' unit':items[0].jumlah+' L')+' \u00b7 '+(items[0].produkNama||'')
+        :items.length+' produk: '+items.map(function(x){return x.produkNama||'';}).join(', ');
+      entries.push({
+        _type:'jual',_repr:t,_items:items,_grupId:key,
+        tipe:items.some(function(x){return x.tipe==='jual-tandon';})?'jual-tandon':'jual-galon',
+        pelanggan:t.pelanggan||'Umum',tgl:t.tgl,total:totalGrup,
+        bayar:t.bayar,status:status,desc:desc,id:t.id
+      });
+      return;
+    }
+
+    // Hutang manual
+    if(t.tipe==='hutang'){
+      // Status dari field transaksi langsung
+      var stH=t.status||'hutang';
+      entries.push({
+        _type:'hutang',_repr:t,tipe:'hutang',
+        pelanggan:t.pelanggan,tgl:t.tgl,total:t.total,
+        bayar:t.bayar,status:stH,desc:t.catatan||'Hutang manual',id:t.id
+      });
+      return;
+    }
+
+    // Beli
+    if(t.tipe==='beli-galon'||t.tipe==='beli-tandon'){
+      entries.push({
+        _type:'beli',_repr:t,tipe:t.tipe,
+        pelanggan:t.pelanggan,tgl:t.tgl,total:t.total,
+        bayar:t.bayar,status:t.status,desc:'dari '+t.pelanggan,id:t.id
+      });
+    }
+  });
+
+  if(filter==='galon')  return entries.filter(function(e){return e.tipe==='jual-galon';});
+  if(filter==='tandon') return entries.filter(function(e){return e.tipe==='jual-tandon';});
+  if(filter==='beli')   return entries.filter(function(e){return e._type==='beli';});
+  if(filter==='hutang') return entries.filter(function(e){return e._type==='hutang'||e.status==='hutang';});
+  return entries;
 }
 
 function filterRiwayat(f,btn){
@@ -3119,18 +3409,43 @@ function filterRiwayat(f,btn){
   riwayatPage=0;
   document.querySelectorAll('#riwayat-tabs .tab').forEach(t=>t.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  else {
+  else{
     const tabs=document.querySelectorAll('#riwayat-tabs .tab');
     const map={semua:0,galon:1,tandon:2,beli:3,hutang:4};
     if(tabs[map[f]]) tabs[map[f]].classList.add('active');
   }
-  let list=[...DB.transaksi].reverse();
-  if(f==='galon') list=list.filter(t=>t.tipe==='jual-galon');
-  else if(f==='tandon') list=list.filter(t=>t.tipe==='jual-tandon');
-  else if(f==='beli') list=list.filter(t=>t.tipe==='beli-galon'||t.tipe==='beli-tandon');
-  else if(f==='hutang') list=list.filter(t=>t.tipe==='hutang'||t.tipe==='bayar'||t.status==='hutang');
-  riwayatData=list;
+  riwayatData=buildRiwayatEntries(f);
   renderRiwayatPage();
+}
+
+function riwayatEntriHTML(e){
+  var cfgs={
+    'jual-galon':{bg:'var(--blue-light)',c:'var(--blue)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M12 2C8 2 5 5.5 5 9c0 5 7 13 7 13s7-8 7-13c0-3.5-3-7-7-7z"/></svg>',sign:'+'},
+    'jual-tandon':{bg:'var(--teal-light)',c:'var(--teal)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18"/></svg>',sign:'+'},
+    'beli-galon':{bg:'var(--purple-light)',c:'var(--purple)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',sign:'-'},
+    'beli-tandon':{bg:'var(--teal-light)',c:'var(--teal)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 8 12 3 17 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',sign:'+'},
+    'hutang':{bg:'var(--red-light)',c:'var(--red)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6"/></svg>',sign:'-'},
+  };
+  var cfg=cfgs[e.tipe]||cfgs['jual-galon'];
+  var amtColor=cfg.sign==='+'?(e.status==='hutang'?'var(--amber)':'var(--green)'):'var(--red)';
+  var badgeCls=e.status==='lunas'?'bg':'br';
+  var badgeTxt=e.status==='lunas'?'Lunas':'Hutang';
+  return '<div class="list-item" style="flex-wrap:wrap;gap:8px">'
+    +'<div class="li-icon" style="background:'+cfg.bg+';color:'+cfg.c+'">'+cfg.icon+'</div>'
+    +'<div class="li-body">'
+      +'<div class="li-name">'+(e.pelanggan||'Umum')+'</div>'
+      +'<div class="li-desc">'+e.desc+'</div>'
+    +'</div>'
+    +'<div class="li-right">'
+      +'<div class="li-amt" style="color:'+amtColor+'">'+cfg.sign+fmt(e.total)+'</div>'
+      +'<div class="li-date">'+(e.tgl||'-')+'</div>'
+      +'<span class="badge '+badgeCls+'">'+badgeTxt+'</span>'
+    +'</div>'
+    +'<div style="width:100%;display:flex;gap:6px;padding-top:4px;border-top:1px solid var(--border)">'
+      +'<button onclick="previewTrx(\''+e.id+'\')" style="flex:1;border:1.5px solid var(--blue);background:var(--blue-light);color:var(--blue);border-radius:8px;padding:6px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">&#128065; Preview</button>'
+      +'<button onclick="batalTrx(\''+e.id+'\')" style="flex:1;border:1.5px solid var(--red);background:var(--red-light);color:var(--red);border-radius:8px;padding:6px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">&#128465; Batalkan</button>'
+    +'</div>'
+    +'</div>';
 }
 
 function renderRiwayatPage(){
@@ -3139,16 +3454,15 @@ function renderRiwayatPage(){
   riwayatPage=Math.max(0,Math.min(riwayatPage,totalPages-1));
   const slice=riwayatData.slice(riwayatPage*RIW_PER_PAGE,(riwayatPage+1)*RIW_PER_PAGE);
   document.getElementById('riwayat-list').innerHTML=slice.length
-    ? slice.map(trxHTML).join('')
+    ? slice.map(riwayatEntriHTML).join('')
     : '<div class="empty"><p>Tidak ada transaksi</p></div>';
   document.getElementById('riwayat-page-info').textContent=
-    total>0 ? `Hal ${riwayatPage+1}/${totalPages} · ${total} transaksi` : '';
+    total>0?'Hal '+(riwayatPage+1)+'/'+totalPages+' \u00b7 '+total+' transaksi':'';
   const pg=document.getElementById('riwayat-pagination');
   if(totalPages<=1){pg.innerHTML='';return;}
-  pg.innerHTML=`
-    <button onclick="riwayatPageGo(-1)" style="flex:1;border:1.5px solid var(--border);background:${riwayatPage===0?'var(--border)':'var(--card)'};color:${riwayatPage===0?'var(--hint)':'var(--blue)'};border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit"${riwayatPage===0?' disabled':''}>← Prev</button>
-    <button onclick="riwayatPageGo(1)" style="flex:1;border:1.5px solid var(--border);background:${riwayatPage>=totalPages-1?'var(--border)':'var(--card)'};color:${riwayatPage>=totalPages-1?'var(--hint)':'var(--blue)'};border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit"${riwayatPage>=totalPages-1?' disabled':''}>Next →</button>
-  `;
+  pg.innerHTML=
+    '<button onclick="riwayatPageGo(-1)" style="flex:1;border:1.5px solid var(--border);background:'+(riwayatPage===0?'var(--border)':'var(--card)')+';color:'+(riwayatPage===0?'var(--hint)':'var(--blue)')+';border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit"'+(riwayatPage===0?' disabled':'')+'>\u2190 Prev</button>'
+    +'<button onclick="riwayatPageGo(1)" style="flex:1;border:1.5px solid var(--border);background:'+(riwayatPage>=totalPages-1?'var(--border)':'var(--card)')+';color:'+(riwayatPage>=totalPages-1?'var(--hint)':'var(--blue)')+';border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit"'+(riwayatPage>=totalPages-1?' disabled':'')+'>Next \u2192</button>';
 }
 function riwayatPageGo(dir){
   riwayatPage+=dir;
@@ -3387,7 +3701,8 @@ function resetData(){
 function toast(msg,type='success'){
   const el=document.createElement('div');
   el.textContent=msg;
-  el.style.cssText=`position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${type==='error'?'#ef4444':'#1e293b'};color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2);animation:fadeUp .2s ease`;
+  const bg=type==='error'?'#ef4444':type==='info'?'#1a6bff':'#1e293b';
+  el.style.cssText=`position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${bg};color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2);animation:fadeUp .2s ease`;
   document.body.appendChild(el);
   setTimeout(()=>{el.style.opacity='0';el.style.transition='.3s';setTimeout(()=>el.remove(),300)},2500);
 }
@@ -3415,8 +3730,9 @@ function showConfirm(icon,title,sub,yesTxt,cb){
   document.getElementById('custom-confirm').style.display='flex';
 }
 function confirmYes(){
+  var cb=_confirmCallback;
   closeConfirm();
-  if(_confirmCallback) _confirmCallback();
+  if(typeof cb==='function') cb();
 }
 function closeConfirm(){
   document.getElementById('custom-confirm').style.display='none';
@@ -3444,6 +3760,9 @@ function doLogin(){
         document.querySelectorAll('.nav-links .nav-btn').forEach(btn=>{
           if((btn.getAttribute('onclick')||'').includes("showPage('beranda')")) btn.classList.add('active');
         });
+        applyFiturStampoin();updateToggleStampoin();
+        loadFromSheets();
+        startAutoSync();
       },600);
     },1400);
   } else {
@@ -3459,6 +3778,7 @@ function doLogout(){
 }
 function _doLogoutNow(){
   closeNav();
+  stopAutoSync();
   sessionStorage.removeItem('mazu_logged');
   document.getElementById('nav-overlay').classList.remove('open');
   document.getElementById('main-nav').classList.remove('open');
@@ -3485,6 +3805,7 @@ function _doLogoutNow(){
     applyFiturStampoin();
     updateToggleStampoin();
     loadFromSheets();
+    startAutoSync();
   } else {
     document.getElementById('login-user').focus();
   }
@@ -3543,6 +3864,19 @@ var FAQ_ITEMS = [
   {q:'🔄 Bagaimana cara reset poin setelah THR dibagikan?', a:'Buka menu Stamp & Poin → tab Poin. Klik tombol Reset Semua di pojok kanan atas. Setelah konfirmasi, semua poin seluruh pelanggan direset ke 0. Lakukan ini setelah THR selesai dibagikan.'},
   {q:'☁️ Bagaimana cara sinkronisasi data ke perangkat lain?', a:'Buka menu Setelan → bagian Sinkronisasi Data. Klik Kirim ke Server di perangkat lama untuk mengunggah semua data. Kemudian di perangkat baru, klik Ambil dari Server untuk mengunduh data terbaru.'},
   {q:'🗑️ Bagaimana cara membatalkan transaksi?', a:'Buka menu Riwayat & Laporan. Setiap transaksi memiliki tombol 🗑️ Batalkan. Jika dalam satu sesi ada beberapa item, Anda bisa memilih item mana saja yang ingin dibatalkan menggunakan checkbox.'},
+  {q:'🪣 Bagaimana sistem penjualan di menu Penjualan bekerja?', a:'Menu Penjualan menggunakan sistem kasir keranjang belanja. Anda bisa menambahkan beberapa produk (galon dan/atau tandon) dalam satu transaksi. Semua produk dalam satu sesi dikelompokkan sebagai 1 transaksi di Riwayat. Klik tombol 👁 Preview di riwayat untuk melihat detail semua produk yang dibeli dalam transaksi tersebut.'},
+  {q:'🚫 Mengapa transaksi hutang tidak bisa dilanjutkan tanpa nama pelanggan?', a:'Hutang harus dikaitkan dengan pelanggan terdaftar agar bisa dilacak dan ditagih. Jika metode bayar dipilih Kredit/Hutang tapi pelanggan belum dipilih, sistem akan memblokir transaksi dan menampilkan peringatan. Pastikan pelanggan sudah terdaftar di menu Pelanggan sebelum mencatat hutang.'},
+  {q:'⭐ Apa yang terjadi jika saya tidak memilih pelanggan padahal ada poin/stampel?', a:'Transaksi tetap bisa diproses dan disimpan. Namun poin atau stampel yang seharusnya didapat tidak akan dicatat karena tidak ada akun pelanggan yang dituju. Sistem menampilkan pemberitahuan biru sebagai pengingat. Selalu pilih nama pelanggan sebelum memproses transaksi agar poin/stampel tidak hangus.'},
+  {q:'📋 Bagaimana cara melihat rincian hutang di menu Hutang Piutang?', a:'Buka menu Hutang Piutang. Setiap pelanggan yang masih punya hutang aktif tampil dalam kartu tersendiri berisi: Total Hutang, Sudah Dibayar (jika ada pembayaran sebagian), dan Sisa Hutang. Pelanggan yang sudah lunas sepenuhnya akan otomatis hilang dari daftar dan hanya bisa dilihat di Riwayat.'},
+  {q:'💰 Bagaimana cara membayar hutang sebagian?', a:'Buka menu Hutang Piutang → tab Bayar. Pilih nama pelanggan, ubah jumlah bayar sesuai yang dibayarkan (tidak harus penuh). Klik Konfirmasi Pembayaran — akan muncul popup konfirmasi yang menampilkan jumlah bayar, metode, dan sisa hutang. Nama pelanggan tetap ada di daftar dengan sisa hutang yang sudah dikurangi hingga benar-benar lunas.'},
+  {q:'🗑️ Bagaimana cara membatalkan transaksi?', a:'Buka menu Riwayat & Laporan. Klik tombol 🗑 Batalkan pada transaksi yang ingin dibatalkan, atau klik 👁 Preview lalu klik Batalkan dari dalam preview. Jika transaksi memiliki beberapa produk, pilih produk yang ingin dibatalkan menggunakan checkbox. Setelah memilih, masukkan password aplikasi untuk konfirmasi. Stok akan otomatis dikembalikan.'},
+  {q:'🔄 Apakah data otomatis tersimpan dan tersinkron?', a:'Ya. Setiap perubahan data langsung dikirim ke server secara otomatis. Selain itu, aplikasi melakukan sinkronisasi otomatis setiap 30 detik untuk mengambil data terbaru. Status sinkronisasi bisa dilihat dari indikator titik warna di pojok kanan header di sebelah tombol ⟳ Tarik.'},
+  {q:'🟢 Apa arti indikator titik warna di header?', a:'Indikator ini menunjukkan status koneksi ke server. 🟡 Kuning berkedip = sedang sinkronisasi. 🟢 Hijau + jam = berhasil tersinkron, menampilkan waktu terakhir sinkron. 🔴 Merah Offline = tidak terhubung ke server, aplikasi menggunakan data lokal. Data tetap bisa diakses saat offline dan akan tersinkron kembali saat koneksi pulih.'},
+  {q:'📖 Bagaimana riwayat transaksi ditampilkan?', a:'Riwayat mengelompokkan transaksi secara cerdas: (1) Penjualan beberapa produk tampil sebagai 1 baris — klik Preview untuk melihat detail semua produk. (2) Transaksi hutang menampilkan badge status Hutang (merah) atau Lunas (hijau) yang otomatis berubah saat hutang dilunasi. (3) Pembayaran hutang tidak ditampilkan sebagai baris terpisah, sudah tercermin di status transaksi hutang asalnya.'},
+  {q:'🎁 Apa yang terjadi saat pelanggan menukar reward stampel?', a:'Sistem otomatis mengurangi kapasitas air tandon sebesar 19 liter dan mencatat transaksi ke Riwayat dengan keterangan "Reward Stampel (19L Gratis)". Tidak perlu mencatat penjualan secara manual — semuanya tercatat otomatis. Setelah penukaran berhasil, muncul popup konfirmasi yang menginformasikan hal ini beserta sisa kapasitas tandon terkini.'},
+  {q:'❓ Apakah bisa menukar reward jika stok air tandon tidak cukup?', a:'Tidak bisa. Sistem memeriksa stok air tandon sebelum memproses penukaran reward. Jika sisa air tandon kurang dari 19 liter, penukaran ditolak dan muncul peringatan merah. Tambahkan stok air tandon terlebih dahulu di menu Produk → tab Tandon sebelum melakukan penukaran reward.'},
+  {q:'✏️ Bagaimana cara mengedit stampel pelanggan secara manual?', a:'Buka menu Stamp & Poin → tab Stampel. Temukan nama pelanggan, lalu klik tombol ✏️ Edit Stampel. Masukkan jumlah stampel baru, klik Simpan, lalu masukkan password aplikasi untuk konfirmasi. Edit manual berguna untuk koreksi jika ada stampel yang terlewat dicatat atau perlu penyesuaian data.'},
+
   {q:'💡 Tips Penggunaan', a:'• Tambahkan produk galon dan tandon terlebih dahulu sebelum mencatat penjualan\n• Isi stok awal di menu Produk setelah menambahkan produk baru\n• Daftarkan pelanggan tetap agar riwayat transaksi dan hutang lebih terstruktur\n• Gunakan fitur Koreksi Stok di menu Tandon jika ada selisih antara fisik dan sistem\n• Cek Neraca Modal secara rutin untuk memantau kesehatan modal usaha'},
 ];
 
@@ -3603,8 +3937,9 @@ function confirmPassSubmit(){
     document.getElementById('modal-pass-input').select();
     return;
   }
+  var pcb=_passCallback;
   closeConfirmPass();
-  if(typeof _passCallback === 'function') _passCallback();
+  if(typeof pcb==='function') pcb();
 }
 </script>
 
@@ -3732,6 +4067,30 @@ function confirmPassSubmit(){
       <button onclick="document.getElementById('sp-redeem-confirm').style.display='none'" style="border:2px solid var(--border);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--muted);font-family:inherit">Batal</button>
       <button id="sp-redeem-btn" style="border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-family:inherit">✅ Ya, Tukar</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL SUKSES TUKAR REWARD -->
+<div id="reward-sukses-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10050;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:24px;padding:32px 24px;width:100%;max-width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.4)">
+    <div style="font-size:64px;margin-bottom:12px;line-height:1">&#127881;</div>
+    <div style="font-size:20px;font-weight:800;color:var(--green);margin-bottom:8px">Reward Berhasil Ditukar!</div>
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px"><span id="reward-sukses-nama"></span> mendapatkan<br>1x Isi Air Tandon 19 Liter <span style="color:var(--green)">GRATIS</span></div>
+    <div style="background:var(--teal-light);border-radius:14px;padding:16px;margin-bottom:20px">
+      <div style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:6px">&#9432; Informasi Penting</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.6">
+        Pengisian air <strong>tidak perlu dicatat ulang</strong> sebagai transaksi penjualan.<br>
+        Sistem telah <strong>otomatis mengurangi kapasitas tandon</strong> sebesar 19 liter dan mencatatnya ke riwayat transaksi.
+      </div>
+    </div>
+    <div style="background:var(--bg);border-radius:10px;padding:10px 14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:var(--muted);font-weight:600">Sisa Air Tandon</span>
+      <span style="font-size:16px;font-weight:800;color:var(--teal)" id="reward-sukses-tandon">-</span><span style="font-size:12px;color:var(--muted);margin-left:3px">L</span>
+    </div>
+    <button onclick="document.getElementById('reward-sukses-modal').style.display='none'"
+      style="width:100%;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-family:inherit;box-shadow:0 4px 16px rgba(16,185,129,.4)">
+      &#10003; OK, Mengerti
+    </button>
   </div>
 </div>
 
