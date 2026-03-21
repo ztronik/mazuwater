@@ -404,7 +404,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
     <div class="card" style="padding:13px;margin-bottom:10px">
       <div class="fg" style="margin-bottom:0">
         <label class="fl">Pelanggan</label>
-        <select class="fc" id="trx-pelanggan"><option value="">--Pelanggan--</option></select>
+        <select class="fc" id="trx-pelanggan"><option value="">-- Umum (tanpa akun) --</option></select>
       </div>
     </div>
 
@@ -469,8 +469,8 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
             <input type="number" class="fc" id="item-tandon-jumlah" value="1" min="1" oninput="hitungItem()">
           </div>
           <div class="fg" style="margin-bottom:0">
-            <label class="fl">Harga Jual/liter</label>
-            <input type="number" class="fc" id="item-tandon-harga" readonly style="background:var(--bg);color:var(--muted);cursor:default">
+            <label class="fl">Harga Jual <span style="font-weight:400;color:var(--hint)">(bisa diubah)</span></label>
+            <input type="number" class="fc" id="item-tandon-harga" min="0" placeholder="0" oninput="hitungItem()">
           </div>
         </div>
         <div style="background:var(--teal-light);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
@@ -832,7 +832,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <input type="search" class="fc" id="search-poin" placeholder="🔍 Cari pelanggan..." oninput="renderPoinList()" style="flex:1;font-size:12px;padding:8px 11px">
-        <button onclick="resetAllPoin()" style="border:none;background:var(--red-light);color:var(--red);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">🔄 Reset Semua</button>
+        <button onclick="requirePassword('Masukkan password untuk reset semua poin',function(){resetAllPoin()})" style="border:none;background:var(--red-light);color:var(--red);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">🔄 Reset Semua</button>
       </div>
       <div id="poin-list"></div>
     </div>
@@ -1209,12 +1209,19 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
         </div>
         <div class="fg" style="margin-bottom:0">
           <label class="fl">Harga (Rp)</label>
-          <input type="number" class="fc" id="produk-harga-tandon" placeholder="5000" oninput="previewHargaTandon()">
+          <input type="number" class="fc" id="produk-harga-tandon" placeholder="0 (opsional, bisa diatur saat jual)" oninput="previewHargaTandon()">
         </div>
       </div>
       <div id="tandon-harga-preview" style="background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:8px;margin-bottom:12px;font-size:13px;color:var(--text);font-weight:600;text-align:center">
         — isi kolom di atas —
       </div>
+      <label style="display:flex;align-items:center;gap:10px;background:var(--amber-light);border-radius:8px;padding:10px 12px;margin-bottom:4px;cursor:pointer">
+        <input type="checkbox" id="produk-harga-manual" style="width:16px;height:16px;accent-color:var(--amber);cursor:pointer">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--amber)">💰 Harga diatur saat penjualan</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:1px">Harga bisa diedit langsung di form jual, tidak terikat harga produk</div>
+        </div>
+      </label>
     </div>
 
     <!-- STAMP & POIN (tampil jika fitur aktif) -->
@@ -1446,7 +1453,7 @@ function populatePelangganSelectJual(){
   ['trx-pelanggan','h-catat-pelanggan','h-bayar-pelanggan'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     const isOpt=(id==='trx-pelanggan');
-    el.innerHTML=(isOpt?'<option value="">--Pelanggan--</option>':'')+DB.pelanggan.map(p=>`<option value="${p.nama}">${p.nama}</option>`).join('');
+    el.innerHTML=(isOpt?'<option value="">-- Umum (tanpa akun) --</option>':'')+DB.pelanggan.map(p=>`<option value="${p.nama}">${p.nama}</option>`).join('');
   });
 }
 
@@ -1478,10 +1485,20 @@ function setItemType(type){
     sel.innerHTML=aktif.length?aktif.map(p=>{
       const per=parseInt(p.perLiter)||19;
       const harga=parseInt(p.hargaTandon)||0;
-      return `<option value="${p.id}" data-per="${per}" data-harga="${harga}">${p.nama} — ${fmt(harga)}/${per}L</option>`;
+      return `<option value="${p.id}" data-per="${per}" data-harga="${harga}" data-manual="${p.hargaManual?'1':'0'}">${p.nama}${p.hargaManual?' 💰':''}${harga>0?' — '+fmt(harga)+'/'+per+'L':''}</option>`;
     }).join(''):'<option value="">Belum ada produk tandon</option>';
     if(aktif.length){
-      document.getElementById('item-tandon-harga').value=aktif[0].hargaTandon||0;
+      const firstProd=aktif[0];
+      const inputH=document.getElementById('item-tandon-harga');
+      inputH.value=firstProd.hargaTandon||0;
+      if(firstProd.hargaManual){
+        inputH.removeAttribute('readonly');
+        inputH.style.background='';inputH.style.color='';inputH.style.cursor='';
+        inputH.placeholder='Isi harga sesuai kesepakatan';
+      } else {
+        inputH.setAttribute('readonly','');
+        inputH.style.background='var(--bg)';inputH.style.color='var(--muted)';inputH.style.cursor='default';
+      }
     }
     const sisa=getTandonStok();
     const kap=parseInt(DB.settings.tandonKapasitas)||1000;
@@ -1501,7 +1518,18 @@ function onItemTandonChange(){
   const sel=document.getElementById('item-tandon-produk');
   const opt=sel.options[sel.selectedIndex];
   const harga=opt?.getAttribute('data-harga')||0;
-  document.getElementById('item-tandon-harga').value=harga;
+  const isManual=opt?.getAttribute('data-manual')==='1';
+  const inputHarga=document.getElementById('item-tandon-harga');
+  inputHarga.value=harga;
+  if(isManual){
+    inputHarga.removeAttribute('readonly');
+    inputHarga.style.background='';inputHarga.style.color='';inputHarga.style.cursor='';
+    inputHarga.placeholder='Isi harga sesuai kesepakatan';
+  } else {
+    inputHarga.setAttribute('readonly','');
+    inputHarga.style.background='var(--bg)';inputHarga.style.color='var(--muted)';inputHarga.style.cursor='default';
+    inputHarga.placeholder='0';
+  }
   hitungItem();
 }
 
@@ -2131,6 +2159,7 @@ function openModalProduk(tipe){
   if(document.getElementById('produk-stamp')) document.getElementById('produk-stamp').value=0;
   if(document.getElementById('produk-poin')) document.getElementById('produk-poin').value=0;
   if(document.getElementById('produk-poin-tandon')) document.getElementById('produk-poin-tandon').value=0;
+  if(document.getElementById('produk-harga-manual')) document.getElementById('produk-harga-manual').checked=false;
   document.getElementById('produk-harga').value='';
   document.getElementById('produk-harga-modal').value='';
   document.getElementById('produk-stok').value='0';
@@ -2185,6 +2214,7 @@ function editProduk(tipe,id){
     previewHargaTandon();
     document.getElementById('produk-stamp').value=p.stamp||0;
     document.getElementById('produk-poin-tandon').value=p.poin||0;
+    if(document.getElementById('produk-harga-manual')) document.getElementById('produk-harga-manual').checked=p.hargaManual||false;
   }
   openModal('modal-produk');
 }
@@ -2211,16 +2241,18 @@ function simpanProduk(){
   } else {
     const perLiter=parseInt(document.getElementById('produk-per-liter').value)||19;
     const hargaTandon=parseInt(document.getElementById('produk-harga-tandon').value)||0;
-    if(!hargaTandon){toast('Masukkan harga produk tandon','error');return}
+    // hargaTandon boleh 0 (harga bisa diatur saat penjualan)
     const stampT=parseFloat(document.getElementById('produk-stamp')?.value)||0;
     const poinT=parseInt(document.getElementById('produk-poin-tandon')?.value)||0;
     if(editId){
       const idx=DB.produkTandon.findIndex(p=>p.id===editId);
-      if(idx>-1) DB.produkTandon[idx]={...DB.produkTandon[idx],nama,kode,perLiter,hargaTandon,deskripsi,status,stamp:stampT,poin:poinT};
+      const hargaManualTE=document.getElementById('produk-harga-manual')?.checked||false;
+      if(idx>-1) DB.produkTandon[idx]={...DB.produkTandon[idx],nama,kode,perLiter,hargaTandon,deskripsi,status,stamp:stampT,poin:poinT,hargaManual:hargaManualTE};
     } else {
       const stampT=parseFloat(document.getElementById('produk-stamp')?.value)||0;
       const poinT=parseInt(document.getElementById('produk-poin-tandon')?.value)||0;
-      DB.produkTandon.push({id:genId(),nama,kode,perLiter,hargaTandon,deskripsi,status,stamp:stampT,poin:poinT});
+      const hargaManualT=document.getElementById('produk-harga-manual')?.checked||false;
+      DB.produkTandon.push({id:genId(),nama,kode,perLiter,hargaTandon,deskripsi,status,stamp:stampT,poin:poinT,hargaManual:hargaManualT});
     }
   }
   saveDB(); closeModal('modal-produk'); renderProduk(); toast('✅ Produk disimpan!');
@@ -2750,14 +2782,14 @@ function renderStampelList(){
       +'<div><div style="font-size:13px;font-weight:700">'+p.nama+'</div>'
       +'<div style="font-size:11px;color:var(--muted)">'+(p.hp||'-')+'</div></div>'
       +'<div style="text-align:right">'
-      +(reward>0?'<div style="font-size:11px;font-weight:700;color:var(--green);background:var(--green-light);border-radius:6px;padding:3px 8px;margin-bottom:4px">🎁 Reward: '+reward+'x gratis</div>':'')
+      +(reward>0?'<div style="font-size:11px;font-weight:700;color:var(--green);background:var(--green-light);border-radius:6px;padding:3px 8px;margin-bottom:4px">🎁 Reward: '+reward+'x gratis</div>':stamp>=10?'<div style="font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-light);border-radius:6px;padding:3px 8px;margin-bottom:4px">🎁 Stampel penuh! Siap ditukar</div>':'')
       +'<div style="font-size:11px;color:var(--muted)">'+stamp+' / 10 stampel</div></div></div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+bars+'</div>'
       +'<div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;margin-bottom:10px">'
       +'<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--teal),var(--blue));border-radius:4px"></div></div>'
       +'<div style="display:flex;gap:6px">'
-      +'<button data-id="'+p.id+'" data-act="redeem" '+(reward>0?'':'disabled ')
-      +'style="flex:1;border:none;background:'+(reward>0?'var(--green-light)':'var(--border)')+';color:'+(reward>0?'var(--green)':'var(--hint)')+';border-radius:8px;padding:7px 0;font-size:11px;font-weight:700;cursor:'+(reward>0?'pointer':'default')+';font-family:inherit">🎁 Tukar Reward</button>'
+      +'<button data-id="'+p.id+'" data-act="redeem" '+(reward>0||stamp>=10?'':'disabled ')
+      +'style="flex:1;border:none;background:'+(reward>0||stamp>=10?'var(--green-light)':'var(--border)')+';color:'+(reward>0||stamp>=10?'var(--green)':'var(--hint)')+';border-radius:8px;padding:7px 0;font-size:11px;font-weight:700;cursor:'+(reward>0||stamp>=10?'pointer':'default')+';font-family:inherit">🎁 Tukar Reward</button>'
       +'<button data-id="'+p.id+'" data-act="edit-stamp" style="flex:1;border:1.5px solid var(--teal);background:var(--teal-light);color:var(--teal);border-radius:8px;padding:7px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">✏️ Edit Stampel</button>'
       +'<button data-id="'+p.id+'" data-act="reset-stamp" style="flex:1;border:1.5px solid var(--red);background:var(--red-light);color:var(--red);border-radius:8px;padding:7px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🔄 Reset</button>'
       +'</div></div>';
@@ -2769,8 +2801,8 @@ function renderStampelList(){
     var id=btn.getAttribute('data-id');
     var act=btn.getAttribute('data-act');
     if(act==='redeem') redeemReward(id);
-    else if(act==='edit-stamp') editStampel(id);
-    else if(act==='reset-stamp') resetStampel(id);
+    else if(act==='edit-stamp') requirePassword('Masukkan password untuk edit stampel',function(){ editStampel(id); });
+    else if(act==='reset-stamp') requirePassword('Masukkan password untuk reset stampel',function(){ resetStampel(id); });
   };
 }
 function renderPoinList(){
@@ -2807,14 +2839,20 @@ function renderPoinList(){
     if(!btn) return;
     var id=btn.getAttribute('data-id');
     var act=btn.getAttribute('data-act');
-    if(act==='edit-poin') editPoin(id);
-    else if(act==='reset-poin') resetPoin1(id);
+    if(act==='edit-poin') requirePassword('Masukkan password untuk edit poin',function(){ editPoin(id); });
+    else if(act==='reset-poin') requirePassword('Masukkan password untuk reset poin',function(){ resetPoin1(id); });
   };
 }
 
 function redeemReward(plgId){
   var p=DB.pelanggan.find(function(x){return x.id===plgId;});
-  if(!p||!(p.rewardFree>0)){toast('Tidak ada reward tersedia','error');return;}
+  if(!p) return;
+  // Konversi stampel>=10 jadi reward dulu jika belum terkonversi
+  while((p.stampel||0)>=10){
+    p.stampel-=10;
+    p.rewardFree=(p.rewardFree||0)+1;
+  }
+  if(!(p.rewardFree>0)){toast('Stampel belum cukup untuk reward','error');return;}
   var box=document.getElementById('sp-redeem-confirm');
   if(box){
     document.getElementById('sp-redeem-nama').textContent=p.nama;
@@ -2986,7 +3024,10 @@ function batalTrx(id){
         <div style="font-weight:600">${t.produkNama||t.tipe}</div>
         <div style="font-size:11px;color:var(--muted)">${t.tipe==='jual-galon'?t.jumlah+' unit':t.tipe==='jual-tandon'?t.jumlah+' liter':''} · ${fmt(t.total)}</div>
       </div>`;
-    document.getElementById('batal-trx-confirm-btn').onclick=function(){batalKonfirmasiTrx([id]);};
+    document.getElementById('batal-trx-confirm-btn').onclick=function(){
+      closeBatalTrx();
+      requirePassword('Masukkan password untuk membatalkan transaksi',function(){batalKonfirmasiTrx([id]);});
+    };
   } else {
     // Banyak item — tampilkan checkbox
     document.getElementById('batal-trx-list').innerHTML=grup.map(x=>`
@@ -3001,7 +3042,8 @@ function batalTrx(id){
     document.getElementById('batal-trx-confirm-btn').onclick=function(){
       const checked=[...document.querySelectorAll('#batal-trx-list input:checked')].map(el=>el.value);
       if(!checked.length){toast('Pilih minimal 1 item','error');return;}
-      batalKonfirmasiTrx(checked);
+      closeBatalTrx();
+      requirePassword('Masukkan password untuk membatalkan transaksi',function(){batalKonfirmasiTrx(checked);});
     };
   }
   document.getElementById('modal-batal-trx').style.display='flex';
@@ -3011,14 +3053,32 @@ function closeBatalTrx(){
 }
 function batalKonfirmasiTrx(ids){
   document.getElementById('modal-batal-trx').style.display='none';
+
+  // Kumpulkan info stok yang akan dikembalikan sebelum hapus
+  var infoStok=[];
+  ids.forEach(function(id){
+    const t=DB.transaksi.find(x=>x.id===id);
+    if(!t) return;
+    if(t.tipe==='jual-galon'){
+      infoStok.push('📦 '+t.produkNama+' +'+t.jumlah+' unit kembali ke stok');
+    } else if(t.tipe==='jual-tandon'){
+      infoStok.push('💧 Air tandon +'+(t.jumlah||0)+' unit ('+((t.jumlah||0)*(t.per||19))+' L) kembali ke stok');
+    }
+  });
+
+  // Hapus transaksi
   ids.forEach(function(id){
     const idx=DB.transaksi.findIndex(x=>x.id===id);
     if(idx>-1) DB.transaksi.splice(idx,1);
   });
+
   saveDB();
   pushToSheets('saveAllTransaksi',{transaksi:DB.transaksi});
-  renderRiwayat();renderBeranda();
-  toast('Transaksi dibatalkan ('+ids.length+' item dihapus)');
+  renderRiwayat();renderBeranda();renderProduk();
+
+  // Tampilkan info stok yang dikembalikan
+  var msg='✅ '+ids.length+' transaksi dibatalkan'+(infoStok.length?' — '+infoStok.join(' | '):'');
+  toast(msg);
 }
 
 function renderRiwayat(){
@@ -3501,6 +3561,39 @@ function renderFAQ(){
     +' style="flex:1;border:1.5px solid var(--border);background:'+(faqPage>=totalPages-1?'var(--border)':'var(--card)')+';color:'+(faqPage>=totalPages-1?'var(--hint)':'var(--blue)')+';border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Next →</button>';
 }
 function faqPageGo(dir){faqPage+=dir;renderFAQ();}
+
+// ═══════════════════════════════════════
+// KONFIRMASI PASSWORD
+// ═══════════════════════════════════════
+var _passCallback = null;
+
+function requirePassword(desc, callback){
+  _passCallback = callback;
+  document.getElementById('modal-pass-desc').textContent = desc || 'Masukkan password untuk melanjutkan';
+  document.getElementById('modal-pass-input').value = '';
+  document.getElementById('modal-pass-err').style.display = 'none';
+  document.getElementById('modal-confirm-pass').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('modal-pass-input').focus(); }, 100);
+}
+
+function closeConfirmPass(){
+  document.getElementById('modal-confirm-pass').style.display = 'none';
+  document.getElementById('modal-pass-input').value = '';
+  document.getElementById('modal-pass-err').style.display = 'none';
+  _passCallback = null;
+}
+
+function confirmPassSubmit(){
+  var input = document.getElementById('modal-pass-input').value;
+  var savedPass = DB.settings.password || 'ztronik13';
+  if(input !== savedPass){
+    document.getElementById('modal-pass-err').style.display = 'block';
+    document.getElementById('modal-pass-input').select();
+    return;
+  }
+  closeConfirmPass();
+  if(typeof _passCallback === 'function') _passCallback();
+}
 </script>
 
 <!-- MODAL KASIR -->
@@ -3665,6 +3758,24 @@ function faqPageGo(dir){faqPage+=dir;renderFAQ();}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button onclick="document.getElementById('sp-reset-all-poin-confirm').style.display='none'" style="border:2px solid var(--border);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--muted);font-family:inherit">Batal</button>
       <button id="sp-reset-all-poin-ya-btn" style="border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-family:inherit">✅ Ya, Reset Semua</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL KONFIRMASI PASSWORD -->
+<div id="modal-confirm-pass" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10030;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:18px;padding:24px 20px;width:100%;max-width:300px;box-shadow:0 16px 48px rgba(0,0,0,.35)">
+    <div style="font-size:15px;font-weight:800;margin-bottom:4px">🔐 Konfirmasi Password</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="modal-pass-desc">Masukkan password untuk melanjutkan</div>
+    <div class="fg" style="margin-bottom:6px">
+      <input type="password" class="fc" id="modal-pass-input" placeholder="Password aplikasi" autocomplete="off"
+        onkeydown="if(event.key==='Enter') confirmPassSubmit()">
+    </div>
+    <div id="modal-pass-err" style="font-size:11px;color:var(--red);margin-bottom:10px;display:none">❌ Password salah</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="closeConfirmPass()" style="border:2px solid var(--border);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--muted);font-family:inherit">Batal</button>
+      <button onclick="confirmPassSubmit()" style="border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#1a6bff,#7c3aed);color:#fff;font-family:inherit">✅ Lanjutkan</button>
     </div>
   </div>
 </div>
