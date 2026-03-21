@@ -1967,7 +1967,7 @@ function renderPelanggan(){
       <div class="li-icon" style="background:var(--blue-light);color:var(--blue);cursor:pointer" onclick="showDetailPelanggan('${p.id}')">${p.nama.slice(0,2).toUpperCase()}</div>
       <div class="li-body" style="cursor:pointer" onclick="showDetailPelanggan('${p.id}')">
         <div class="li-name">${p.nama}</div>
-        <div class="li-desc">${p.hp||'-'} · Tandon ${(p.tandonKap||1000).toLocaleString('id-ID')} L</div>
+        <div class="li-desc">${p.hp||'-'}</div>
         ${hutang>0?`<div style="font-size:12px;font-weight:700;color:var(--red);margin-top:2px">${fmt(hutang)} piutang</div>`:'<span class="badge bg" style="margin-top:2px">Lunas</span>'}
       </div>
       <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;margin-left:6px">
@@ -1997,7 +1997,7 @@ function showDetailPelanggan(id){
     </div>
     <div class="grid2">
       <div class="card" style="padding:11px"><div style="font-size:11px;color:var(--muted)">Hutang</div><div style="font-size:16px;font-weight:700;color:var(--red)">${fmt(hutang)}</div></div>
-      <div class="card" style="padding:11px"><div style="font-size:11px;color:var(--muted)">Tandon</div><div style="font-size:16px;font-weight:700">${(p.tandonKap||1000).toLocaleString('id-ID')} L</div></div>
+
     </div>
     <div style="font-size:12px;font-weight:700;margin-bottom:8px">Riwayat Transaksi</div>
     ${trxPlg.map(trxHTML).join('')||'<p style="color:var(--muted);font-size:12px">Belum ada transaksi</p>'}
